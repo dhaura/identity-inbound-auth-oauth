@@ -32,36 +32,36 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
     public static final String DESCRIPTION = "description";
     public static final String USERNAME = "username";
 
-//    @Override
-//    public OAuth2AccessTokenRespDTO issue(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
-//        OAuth2AccessTokenRespDTO responseDTO = super.issue(tokReqMsgCtx);
-//        RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
-//
-//        String alias = null;
-//        String description = null;
-//
-//        for (RequestParameter parameter : parameters) {
-//            if (ALIAS.equals(parameter.getKey())) {
-//                if (parameter.getValue() != null && parameter.getValue().length > 0) {
-//                    alias = parameter.getValue()[0];
-//                }
-//            }
-//            if (DESCRIPTION.equals(parameter.getKey())) {
-//                if (parameter.getValue() != null && parameter.getValue().length > 0) {
-//                    description = parameter.getValue()[0];
-//                }
-//            }
-//        }
-//
-//        if (alias != null && description != null) {
-//            PATDAOFactory.getInstance().getPATMgtDAO()
-//                    .insertPATData(responseDTO.getTokenId(), alias, description);
-//        } else {
-//            System.out.println("issue");
-//        }
-//
-//        return responseDTO;
-//    }
+    @Override
+    public OAuth2AccessTokenRespDTO issue(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
+        OAuth2AccessTokenRespDTO responseDTO = super.issue(tokReqMsgCtx);
+        RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
+
+        String alias = null;
+        String description = null;
+
+        for (RequestParameter parameter : parameters) {
+            if (ALIAS.equals(parameter.getKey())) {
+                if (parameter.getValue() != null && parameter.getValue().length > 0) {
+                    alias = parameter.getValue()[0];
+                }
+            }
+            if (DESCRIPTION.equals(parameter.getKey())) {
+                if (parameter.getValue() != null && parameter.getValue().length > 0) {
+                    description = parameter.getValue()[0];
+                }
+            }
+        }
+
+        if (alias != null && description != null) {
+            PATDAOFactory.getInstance().getPATMgtDAO()
+                    .insertPATData(responseDTO.getTokenId(), alias, description);
+        } else {
+            System.out.println("issue");
+        }
+
+        return responseDTO;
+    }
 
     @Override
     public boolean issueRefreshToken() throws IdentityOAuth2Exception {
