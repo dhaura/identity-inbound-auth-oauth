@@ -103,52 +103,83 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)  throws IdentityOAuth2Exception {
         boolean validateGrant = super.validateGrant(tokReqMsgCtx);
 
-        RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
+        if (validateGrant){
+            RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
 
-        String idTokenHint = null;
-        String tenantDomain = null;
-        String userID = null;
+            String idTokenHint = null;
+            String tenantDomain = null;
+            String userID = null;
 
-        for (RequestParameter parameter : parameters) {
-            if (ID_TOKEN_HINT.equals(parameter.getKey())) {
-                if (parameter.getValue() != null && parameter.getValue().length > 0) {
-                    idTokenHint = parameter.getValue()[0];
-                }
-            }
-
-        }
-
-
-        if (!OIDCSessionManagementUtil.isIDTokenEncrypted(idTokenHint)) {
-            if (validateIdToken(idTokenHint)) {
-                try {
-                    tenantDomain = extractTenantDomainFromIdToken(idTokenHint);
-                    userID = SignedJWT.parse(idTokenHint).getJWTClaimsSet()
-                            .getSubject();
-
-                    AbstractUserStoreManager userStoreManager = getUserStoreManager(tenantDomain);
-
-                    UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
-                    User user = userUniqueIDManger.getUser(userID, userStoreManager);
-
-                    AuthenticatedUser patAuthenticatedUser = new AuthenticatedUser(user);
-                    patAuthenticatedUser.setTenantDomain(tenantDomain);
-
-                    tokReqMsgCtx.setAuthorizedUser(patAuthenticatedUser);
-                    tokReqMsgCtx.setScope(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope());
-
-                    return validateGrant;
-
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (UserStoreException e) {
-                    e.printStackTrace();
+            for (RequestParameter parameter : parameters) {
+                if (ID_TOKEN_HINT.equals(parameter.getKey())) {
+                    if (parameter.getValue() != null && parameter.getValue().length > 0) {
+                        idTokenHint = parameter.getValue()[0];
+                    }
                 }
 
             }
 
+
+            if (!OIDCSessionManagementUtil.isIDTokenEncrypted(idTokenHint)) {
+                if (validateIdToken(idTokenHint)) {
+                    try {
+                        tenantDomain = extractTenantDomainFromIdToken(idTokenHint);
+                        userID = SignedJWT.parse(idTokenHint).getJWTClaimsSet()
+                                .getSubject();
+
+                        AuthenticatedUser patAuthenticatedUser = getUserAuthenticatedUser(userID, tenantDomain);
+
+                        if (patAuthenticatedUser != null) {
+                            tokReqMsgCtx.setAuthorizedUser(patAuthenticatedUser);
+                            tokReqMsgCtx.setScope(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope());
+
+                            return validateGrant;
+                        }
+
+                    } catch (ParseException e) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Error occurred while retrieving tenant domain from ID token", e);
+                        }
+                    }
+
+                }
+
+            }
         }
         return false;
+    }
+
+    private AuthenticatedUser getUserAuthenticatedUser(String userID, String tenantDomain){
+        AbstractUserStoreManager userStoreManager = null;
+        try {
+            userStoreManager = getUserStoreManager(tenantDomain);
+        } catch (IdentityOAuth2Exception e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred while retrieving user store manager:  " , e);
+            }
+        }
+
+        if (userStoreManager != null){
+            UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
+            User user = null;
+            try {
+                user = userUniqueIDManger.getUser(userID, userStoreManager);
+            } catch (UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error occurred while extracting user from user id : " + userID, e);
+                }
+            }
+
+            if (user != null){
+                AuthenticatedUser patAuthenticatedUser = new AuthenticatedUser(user);
+                patAuthenticatedUser.setTenantDomain(tenantDomain);
+
+                return patAuthenticatedUser;
+            }
+        }
+
+        return null;
+
     }
 
     private String extractClientFromIdToken(String idToken) throws ParseException {
