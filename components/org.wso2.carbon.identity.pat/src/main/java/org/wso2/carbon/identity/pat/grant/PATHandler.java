@@ -61,12 +61,25 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
 
     public static final String ALIAS = "alias";
     public static final String DESCRIPTION = "description";
+    public static final String VALIDITY_PERIOD = "validity_period";
     public static final String ID_TOKEN_HINT = "id_token_hint";
 
     @Override
     public OAuth2AccessTokenRespDTO issue(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
-        OAuth2AccessTokenRespDTO responseDTO = super.issue(tokReqMsgCtx);
         RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
+        long validityPeriod = -1;
+
+        for (RequestParameter parameter : parameters) {
+            if (VALIDITY_PERIOD.equals(parameter.getKey())) {
+                if (parameter.getValue() != null && parameter.getValue().length > 0) {
+                    validityPeriod = Long.parseLong(parameter.getValue()[0]);
+                    tokReqMsgCtx.setValidityPeriod(validityPeriod);
+                }
+            }
+
+        }
+
+        OAuth2AccessTokenRespDTO responseDTO = super.issue(tokReqMsgCtx);
 
         String alias = null;
         String description = null;
@@ -88,7 +101,7 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
             PATDAOFactory.getInstance().getPATMgtDAO()
                     .insertPATData(responseDTO.getTokenId(), alias, description);
         } else {
-            log.info("issue");
+            log.info("Alias or Description is not provided for the PAT.");
         }
 
         return responseDTO;
@@ -116,7 +129,6 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
                         idTokenHint = parameter.getValue()[0];
                     }
                 }
-
             }
 
 

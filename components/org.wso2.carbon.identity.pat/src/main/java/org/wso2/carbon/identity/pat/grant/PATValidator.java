@@ -30,5 +30,6 @@ public class PATValidator extends AbstractValidator {
     public PATValidator() {
         requiredParams.add(PATHandler.ALIAS);
         requiredParams.add(PATHandler.DESCRIPTION);
+        requiredParams.add(PATHandler.VALIDITY_PERIOD);
     }
 }
