@@ -154,8 +154,12 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
                         }
                     }
 
+                }else{
+                    log.debug("ID token: "+idTokenHint+" is invalid.");
                 }
 
+            }else {
+                log.debug("ID Token is encrypted.");
             }
         }
         return false;
