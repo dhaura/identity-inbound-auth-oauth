@@ -23,11 +23,15 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.wso2.carbon.base.MultitenantConstants;
+
 import org.wso2.carbon.core.util.KeyStoreManager;
+
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -39,17 +43,21 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 import org.wso2.carbon.identity.oauth2.model.RequestParameter;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
+import org.wso2.carbon.identity.oauth2.token.bindings.TokenBinding;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oidc.session.OIDCSessionConstants;
 import org.wso2.carbon.identity.oidc.session.util.OIDCSessionManagementUtil;
+import org.wso2.carbon.identity.pat.bindings.impl.PATTokenBinder;
 import org.wso2.carbon.identity.pat.common.PATUtil;
 import org.wso2.carbon.identity.pat.dao.PATDAOFactory;
+
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.common.UserUniqueIDManger;
 import org.wso2.carbon.user.core.service.RealmService;
+
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.security.interfaces.RSAPublicKey;
@@ -78,6 +86,8 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
             }
 
         }
+
+        addTokenBinding(tokReqMsgCtx);
 
         OAuth2AccessTokenRespDTO responseDTO = super.issue(tokReqMsgCtx);
 
@@ -343,6 +353,16 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
         }
 
         return userStoreManager;
+    }
+
+    private void addTokenBinding(OAuthTokenReqMessageContext tokReqMsgCtx) {
+        PATTokenBinder patTokenBinder = new PATTokenBinder();
+        TokenBinding tokenBinding = new TokenBinding();
+        tokenBinding.setBindingValue(String.valueOf(patTokenBinder.getTokenBindingValue(tokReqMsgCtx.getOauth2AccessTokenReqDTO())));
+        tokenBinding.setBindingReference(OAuth2Util.getTokenBindingReference(tokenBinding.getBindingValue()));
+        tokenBinding.setBindingType(patTokenBinder.getBindingType());
+
+        tokReqMsgCtx.setTokenBinding(tokenBinding);
     }
 }
 
