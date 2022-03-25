@@ -75,37 +75,22 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
     @Override
     public OAuth2AccessTokenRespDTO issue(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
         RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
-        long validityPeriod = -1;
 
-        for (RequestParameter parameter : parameters) {
-            if (VALIDITY_PERIOD.equals(parameter.getKey())) {
-                if (parameter.getValue() != null && parameter.getValue().length > 0) {
-                    validityPeriod = Long.parseLong(parameter.getValue()[0]);
-                    tokReqMsgCtx.setValidityPeriod(validityPeriod);
-                }
-            }
+        String validityPeriod = getValueFromRequestParameters(parameters, VALIDITY_PERIOD);
 
+        if (validityPeriod != null){
+            tokReqMsgCtx.setValidityPeriod(Long.parseLong(validityPeriod));
         }
 
         addTokenBinding(tokReqMsgCtx);
 
         OAuth2AccessTokenRespDTO responseDTO = super.issue(tokReqMsgCtx);
 
-        String alias = null;
-        String description = null;
+        String alias;
+        String description;
 
-        for (RequestParameter parameter : parameters) {
-            if (ALIAS.equals(parameter.getKey())) {
-                if (parameter.getValue() != null && parameter.getValue().length > 0) {
-                    alias = parameter.getValue()[0];
-                }
-            }
-            if (DESCRIPTION.equals(parameter.getKey())) {
-                if (parameter.getValue() != null && parameter.getValue().length > 0) {
-                    description = parameter.getValue()[0];
-                }
-            }
-        }
+       alias = getValueFromRequestParameters(parameters, ALIAS);
+       description = getValueFromRequestParameters(parameters, DESCRIPTION);
 
         if (alias != null && description != null) {
             PATDAOFactory.getInstance().getPATMgtDAO()
@@ -129,18 +114,11 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
         if (validateGrant){
             RequestParameter[] parameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
 
-            String idTokenHint = null;
-            String tenantDomain = null;
-            String userID = null;
+            String idTokenHint;
+            String tenantDomain;
+            String userID;
 
-            for (RequestParameter parameter : parameters) {
-                if (ID_TOKEN_HINT.equals(parameter.getKey())) {
-                    if (parameter.getValue() != null && parameter.getValue().length > 0) {
-                        idTokenHint = parameter.getValue()[0];
-                    }
-                }
-            }
-
+            idTokenHint = getValueFromRequestParameters(parameters, ID_TOKEN_HINT);
 
             if (!OIDCSessionManagementUtil.isIDTokenEncrypted(idTokenHint)) {
                 if (validateIdToken(idTokenHint)) {
@@ -149,7 +127,7 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
                         userID = SignedJWT.parse(idTokenHint).getJWTClaimsSet()
                                 .getSubject();
 
-                        AuthenticatedUser patAuthenticatedUser = getUserAuthenticatedUser(userID, tenantDomain);
+                        AuthenticatedUser patAuthenticatedUser = getAuthenticatedUser(userID, tenantDomain);
 
                         if (patAuthenticatedUser != null) {
                             tokReqMsgCtx.setAuthorizedUser(patAuthenticatedUser);
@@ -175,7 +153,7 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
         return false;
     }
 
-    private AuthenticatedUser getUserAuthenticatedUser(String userID, String tenantDomain){
+    private AuthenticatedUser getAuthenticatedUser(String userID, String tenantDomain){
         AbstractUserStoreManager userStoreManager = null;
         try {
             userStoreManager = getUserStoreManager(tenantDomain);
@@ -363,6 +341,19 @@ public class PATHandler extends AbstractAuthorizationGrantHandler {
         tokenBinding.setBindingType(patTokenBinder.getBindingType());
 
         tokReqMsgCtx.setTokenBinding(tokenBinding);
+    }
+
+    private String getValueFromRequestParameters(RequestParameter[] parameters, String key){
+        String value = null;
+        for (RequestParameter parameter : parameters) {
+            if (key.equals(parameter.getKey())) {
+                if (parameter.getValue() != null && parameter.getValue().length > 0) {
+                    value = parameter.getValue()[0];
+                }
+                break;
+            }
+        }
+        return value;
     }
 }
 
