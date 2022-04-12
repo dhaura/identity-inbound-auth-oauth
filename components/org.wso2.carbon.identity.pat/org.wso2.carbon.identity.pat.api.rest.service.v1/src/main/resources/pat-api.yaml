@@ -1,0 +1,297 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: PAT Management API
+  description: >-
+    This document specifies a Management **API** for **Personal Access Tokens (PAT)**.
+servers:
+  - url: 'https://{host-name}/api/pat/v1'
+    variables:
+      host-name:
+        default: "localhost:9443"
+security:
+  - OAuth2: []
+  - BasicAuth: []
+
+paths:
+  /tokens:
+    get:
+      tags:
+        - PAT Management
+      summary: Retrieve PATs
+      description: >-
+        Provides the capability to retrieve Personal Access Tokens for a specific user.
+      responses:
+        '200':
+          $ref: '#/components/responses/PATListSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+        - PAT Management
+      summary: PAT generation
+      description: >-
+        Provides the capability to create a Personal Access Token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PATCreationRequest'
+        description: Represents the request to create a PAT.
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /tokens/{token_id}:
+    get:
+      tags:
+        - PAT Management
+      summary: Retrieve info related to a PAT.
+      description: |
+        Provides the capability to reteive all the metadata for a specific PAT.
+      parameters:
+        - $ref: '#/components/parameters/TokenIDParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/TokenMetadataSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags:
+        - PAT Management
+      summary: Revoke a PAT
+      description: >-
+        Provides the capability to revoke a Personal Access Token.
+      parameters:
+        - $ref: '#/components/parameters/TokenIDParam'
+      responses:
+        '204':
+          $ref: '#/components/responses/RevokeSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  parameters:
+    TokenIDParam:
+      in: path
+      name: token_id
+      description: Token ID of a PAT
+      required: true
+      schema:
+        type: string
+        example: "00a12e21-64a1-4b60-9434-3d06b222291c"
+  schemas:
+    PATCreationRequest:
+      type: object
+      required:
+        - alias
+        - description
+        - validity_period
+        - scope
+      properties:
+        alias:
+          type: string
+          example: "Sample Alias"
+        description:
+          type: string
+          example: "This is a description for Sample Alias"
+        validity_period:
+          type: integer
+          example: 2000
+        scope:
+          items:
+            type: string
+          type: array
+          example: ["openid", "address"]
+    PATRetrievalResponse:
+      type: array
+      items:
+        type: object
+        required:
+          - token_id
+          - alias
+          - description
+          - validity_period
+          - time_created
+          - scope
+        properties:
+          token_id:
+            type: string
+            example: "00a12e21-64a1-4b60-9434-3d06b222291c"
+          alias:
+            type: string
+            example: "Sample Alias"
+          description:
+            type: string
+            example: "This is a description for Sample Alias"
+          validity_period:
+            type: integer
+            example: 2000
+          time_created:
+            type: string
+            example: "2022-03-22 03:28:41"
+          scope:
+            items:
+              type: string
+            type: array
+            example: ["openid", "address"]
+    TokenMetadataRetrievalResponse:
+      type: object
+      required:
+        - token_id
+        - alias
+        - description
+        - validity_period
+        - time_created
+        - scope
+      properties:
+        token_id:
+          type: string
+          example: "00a12e21-64a1-4b60-9434-3d06b222291c"
+        alias:
+          type: string
+          example: "Sample Alias"
+        description:
+          type: string
+          example: "This is a description for Sample Alias"
+        validity_period:
+          type: integer
+          example: 2000
+        time_created:
+          type: string
+          example: "2022-03-22 03:28:41"
+        scope:
+          items:
+            type: string
+          type: array
+          example: ["openid", "address"]
+    PATCreationResponse:
+      type: object
+      required:
+        - access_token
+        - scope
+        - validity_period
+      properties:
+        access_token:
+          type:
+            string
+          example: "6edb0049-0ea3-3b26-9aa3-152b1891d200"
+        scope:
+          items:
+            type: string
+          type: array
+          example: ["openid", "address"]
+        validity_period:
+          type: integer
+          example: 2000
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: ATM-10001
+        message:
+          type: string
+          example: Some Error Message
+        description:
+          type: string
+          example: Some Error Description
+
+  responses:
+    PATListSuccess:
+      description: List of PATs successfully Retrieved.
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/PATRetrievalResponse'
+    TokenMetadataSuccess:
+      description: Token Metadata successfully Retrieved.
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/TokenMetadataRetrievalResponse'
+    Created:
+      description: PAT successfully created.
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/PATCreationResponse'
+    RevokeSuccess:
+      description: PAT successfully Revoked.
+    BadRequest:
+      description: Invalid Request Input
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Resources Forbidden
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: PAT not found
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: Internal Server Error
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://localhost:9443/oauth2/authorize'
+          tokenUrl: 'http://localhost:9763/oauth2/token'
+          scopes: { }
