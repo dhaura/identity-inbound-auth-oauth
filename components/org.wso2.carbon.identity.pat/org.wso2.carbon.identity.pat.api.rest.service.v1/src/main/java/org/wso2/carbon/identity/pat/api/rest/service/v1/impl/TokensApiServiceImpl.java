@@ -39,9 +39,9 @@ public class TokensApiServiceImpl implements TokensApiService {
 
     @Override
     public Response tokensPost(PATCreationRequest paTCreationRequest) {
-        tokenManagementApiService.issuePAT(paTCreationRequest);
+
         // do some magic!
-        return Response.ok().entity("magic!").build();
+        return Response.ok().entity(tokenManagementApiService.issuePAT(paTCreationRequest)).build();
     }
 
     @Override

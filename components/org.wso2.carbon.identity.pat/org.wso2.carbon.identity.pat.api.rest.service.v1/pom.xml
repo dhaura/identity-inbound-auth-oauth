@@ -95,18 +95,6 @@
             <artifactId>org.wso2.carbon.identity.pat.core.service</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--        <dependency>-->
-<!--            <groupId>org.wso2.carbon.identity.inbound.auth.oauth2</groupId>-->
-<!--            <artifactId>org.wso2.carbon.identity.pat.api.rest.commons</artifactId>-->
-<!--            <version>6.7.117</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.wso2.carbon.identity.inbound.auth.oauth2</groupId>-->
-<!--            <artifactId>org.wso2.carbon.identity.oauth.endpoint</artifactId>-->
-<!--            <version>6.7.117</version>-->
-<!--        </dependency>-->
-
     </dependencies>
 
     <build>

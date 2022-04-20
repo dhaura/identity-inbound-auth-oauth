@@ -18,7 +18,11 @@
 
 package org.wso2.carbon.identity.pat.core.service.grant;
 
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.utils.OAuthUtils;
 import org.apache.oltu.oauth2.common.validators.AbstractValidator;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Grant validator for PAT Token Request.
@@ -31,5 +35,14 @@ public class PATValidator extends AbstractValidator {
         requiredParams.add(PATHandler.ALIAS);
         requiredParams.add(PATHandler.DESCRIPTION);
         requiredParams.add(PATHandler.VALIDITY_PERIOD);
+    }
+
+    @Override
+    public void validateContentType(HttpServletRequest request) throws OAuthProblemException {
+        String contentType = request.getContentType();
+        String expectedContentType = "application/json";
+        if (!OAuthUtils.hasContentType(contentType, "application/json")) {
+            throw OAuthUtils.handleBadContentTypeException("application/json");
+        }
     }
 }

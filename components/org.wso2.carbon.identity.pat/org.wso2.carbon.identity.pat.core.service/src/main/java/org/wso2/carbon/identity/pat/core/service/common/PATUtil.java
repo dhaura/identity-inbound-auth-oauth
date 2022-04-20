@@ -16,15 +16,34 @@
 
 package org.wso2.carbon.identity.pat.core.service.common;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.central.log.mgt.utils.LoggerUtils;
 import org.wso2.carbon.identity.oauth.OAuthAdminService;
+import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
+import org.wso2.carbon.identity.pat.core.service.model.PATCreationData;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.wso2.carbon.identity.oauth.common.OAuthConstants.OauthAppStates.APP_STATE_ACTIVE;
 
 /**
  * PAT util class.
  */
 public class PATUtil {
+
+    private static final Log log = LogFactory.getLog(PATUtil.class);
 
     /**
      * Get OAuthAdmin osgi service.
@@ -55,4 +74,16 @@ public class PATUtil {
         return (OAuth2Service) PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getOSGiService(OAuth2Service.class, null);
     }
+
+    /**
+     * This method will start a super tenant flow
+     */
+    public static void startSuperTenantFlow() {
+
+        PrivilegedCarbonContext.startTenantFlow();
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+        carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+    }
+
 }
