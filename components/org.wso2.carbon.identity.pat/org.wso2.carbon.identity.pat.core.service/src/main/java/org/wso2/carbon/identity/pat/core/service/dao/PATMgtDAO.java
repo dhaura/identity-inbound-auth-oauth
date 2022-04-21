@@ -18,10 +18,17 @@
 
 package org.wso2.carbon.identity.pat.core.service.dao;
 
+import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
+
+import java.util.List;
+
 /**
  * DAO layer for PAT.
  */
 public interface PATMgtDAO {
 
     public void insertPATData(String tokenID, String alias, String description);
+    public TokenMetadataDTO getTokenMetadata(String tokenID);
+    public List<String> getTokenScopes(String tokenID);
+
 }

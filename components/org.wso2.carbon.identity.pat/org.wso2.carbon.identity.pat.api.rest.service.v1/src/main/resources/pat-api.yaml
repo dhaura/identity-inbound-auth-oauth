@@ -146,35 +146,7 @@ components:
     PATRetrievalResponse:
       type: array
       items:
-        type: object
-        required:
-          - token_id
-          - alias
-          - description
-          - validity_period
-          - time_created
-          - scope
-        properties:
-          token_id:
-            type: string
-            example: "00a12e21-64a1-4b60-9434-3d06b222291c"
-          alias:
-            type: string
-            example: "Sample Alias"
-          description:
-            type: string
-            example: "This is a description for Sample Alias"
-          validity_period:
-            type: integer
-            example: 2000
-          time_created:
-            type: string
-            example: "2022-03-22 03:28:41"
-          scope:
-            items:
-              type: string
-            type: array
-            example: ["openid", "address"]
+        $ref: '#/components/schemas/TokenMetadataRetrievalResponse'
     TokenMetadataRetrievalResponse:
       type: object
       required:

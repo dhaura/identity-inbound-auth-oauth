@@ -55,6 +55,6 @@ public class TokensApiServiceImpl implements TokensApiService {
     public Response tokensTokenIdGet(String tokenId) {
 
         // do some magic!
-        return Response.ok().entity("magic!").build();
+        return Response.ok().entity(tokenManagementApiService.getTokenMetadata(tokenId)).build();
     }
 }

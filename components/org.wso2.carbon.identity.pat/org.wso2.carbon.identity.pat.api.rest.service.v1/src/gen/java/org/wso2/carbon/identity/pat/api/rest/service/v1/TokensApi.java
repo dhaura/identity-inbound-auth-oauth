@@ -50,14 +50,14 @@ public class TokensApi  {
     
     
     @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieve PATs", notes = "Provides the capability to retrieve Personal Access Tokens for a specific user.", response = Object.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "Retrieve PATs", notes = "Provides the capability to retrieve Personal Access Tokens for a specific user.", response = TokenMetadataRetrievalResponse.class, responseContainer = "List", authorizations = {
         @Authorization(value = "BasicAuth"),
         @Authorization(value = "OAuth2", scopes = {
             
         })
     }, tags={ "PAT Management", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "List of PATs successfully Retrieved.", response = Object.class, responseContainer = "List"),
+        @ApiResponse(code = 200, message = "List of PATs successfully Retrieved.", response = TokenMetadataRetrievalResponse.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid Request Input", response = Error.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = Error.class),
         @ApiResponse(code = 403, message = "Resources Forbidden", response = Error.class),

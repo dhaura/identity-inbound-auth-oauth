@@ -1,23 +1,21 @@
 package org.wso2.carbon.identity.pat.core.service.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PATCreationData {
+public class TokenMetadataDTO {
+    private String tokenId;
     private String alias;
     private String description;
     private Integer validityPeriod;
-    private List<String> scope = new ArrayList<>();
+    private String timeCreated;
+    private List<String> scope;
 
-    private String idTokenHint;
-    private String clientID;
-
-    public String getClientID() {
-        return clientID;
+    public String getTokenId() {
+        return tokenId;
     }
 
-    public void setClientID(String clientID) {
-        this.clientID = clientID;
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
     }
 
     public String getAlias() {
@@ -44,19 +42,19 @@ public class PATCreationData {
         this.validityPeriod = validityPeriod;
     }
 
+    public String getTimeCreated() {
+        return timeCreated;
+    }
+
+    public void setTimeCreated(String timeCreated) {
+        this.timeCreated = timeCreated;
+    }
+
     public List<String> getScope() {
         return scope;
     }
 
     public void setScope(List<String> scope) {
         this.scope = scope;
-    }
-
-    public String getIdTokenHint() {
-        return idTokenHint;
-    }
-
-    public void setIdTokenHint(String idTokenHint) {
-        this.idTokenHint = idTokenHint;
     }
 }

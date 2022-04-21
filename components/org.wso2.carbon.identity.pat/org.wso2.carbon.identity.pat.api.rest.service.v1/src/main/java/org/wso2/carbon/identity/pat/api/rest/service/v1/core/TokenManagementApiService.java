@@ -3,35 +3,56 @@ package org.wso2.carbon.identity.pat.api.rest.service.v1.core;
 import org.wso2.carbon.identity.pat.api.rest.commons.PATApiMgtDataHolder;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationRequest;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationResponse;
-import org.wso2.carbon.identity.pat.core.service.model.PATCreationData;
-import org.wso2.carbon.identity.pat.core.service.model.PATCreationResponseData;
+import org.wso2.carbon.identity.pat.api.rest.service.v1.model.TokenMetadataRetrievalResponse;
+import org.wso2.carbon.identity.pat.core.service.model.PATCreationReqDTO;
+import org.wso2.carbon.identity.pat.core.service.model.PATCreationRespDTO;
+import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
+
+import java.util.ArrayList;
 
 public class TokenManagementApiService {
 
     public PATCreationResponse issuePAT(PATCreationRequest patCreationRequest){
-        PATCreationData patCreationData = getPATCreationDataObject(patCreationRequest);
-        return getPATCreationResponse(PATApiMgtDataHolder.getPatManagementService().issuePAT(patCreationData));
+        PATCreationReqDTO patCreationReqDTO = getPATCreationDataObject(patCreationRequest);
+        return getPATCreationResponse(PATApiMgtDataHolder.getPatManagementService().issuePAT(patCreationReqDTO));
     }
 
-    private PATCreationData getPATCreationDataObject(PATCreationRequest patCreationRequest){
-        PATCreationData patCreationData = new PATCreationData();
-
-        patCreationData.setAlias(patCreationRequest.getAlias());
-        patCreationData.setDescription(patCreationRequest.getDescription());
-        patCreationData.setValidityPeriod(patCreationRequest.getValidityPeriod());
-        patCreationData.setScope(patCreationRequest.getScope());
-        patCreationData.setIdTokenHint(patCreationRequest.getIdTokenHint());
-        patCreationData.setClientID(patCreationRequest.getClientId());
-
-        return patCreationData;
+    public TokenMetadataRetrievalResponse getTokenMetadata(String tokenId){
+        TokenMetadataDTO tokenMetadataDTO = PATApiMgtDataHolder.getPatManagementService().getTokenMetadata(tokenId);
+        return getTokenMetadataRetrievalResponse(tokenMetadataDTO);
     }
 
-    private PATCreationResponse getPATCreationResponse(PATCreationResponseData patCreationResponseData){
+    private PATCreationReqDTO getPATCreationDataObject(PATCreationRequest patCreationRequest){
+        PATCreationReqDTO patCreationReqDTO = new PATCreationReqDTO();
+
+        patCreationReqDTO.setAlias(patCreationRequest.getAlias());
+        patCreationReqDTO.setDescription(patCreationRequest.getDescription());
+        patCreationReqDTO.setValidityPeriod(patCreationRequest.getValidityPeriod());
+        patCreationReqDTO.setScope(patCreationRequest.getScope());
+        patCreationReqDTO.setIdTokenHint(patCreationRequest.getIdTokenHint());
+        patCreationReqDTO.setClientID(patCreationRequest.getClientId());
+
+        return patCreationReqDTO;
+    }
+
+    private PATCreationResponse getPATCreationResponse(PATCreationRespDTO patCreationRespDTO){
         PATCreationResponse patCreationResponse = new PATCreationResponse();
-        patCreationResponse.setAccessToken(patCreationResponseData.getAccessToken());
-        patCreationResponse.setScope(patCreationResponseData.getScope());
-        patCreationResponse.setValidityPeriod((int) patCreationResponseData.getValidityPeriod());
+        patCreationResponse.setAccessToken(patCreationRespDTO.getAccessToken());
+        patCreationResponse.setScope(patCreationRespDTO.getScope());
+        patCreationResponse.setValidityPeriod((int) patCreationRespDTO.getValidityPeriod());
 
         return patCreationResponse;
+    }
+
+    private TokenMetadataRetrievalResponse getTokenMetadataRetrievalResponse(TokenMetadataDTO tokenMetadataDTO){
+        TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse = new TokenMetadataRetrievalResponse();
+        tokenMetadataRetrievalResponse.setTokenId(tokenMetadataDTO.getTokenId());
+        tokenMetadataRetrievalResponse.setAlias(tokenMetadataDTO.getAlias());
+        tokenMetadataRetrievalResponse.setDescription(tokenMetadataDTO.getDescription());
+        tokenMetadataRetrievalResponse.setValidityPeriod(tokenMetadataDTO.getValidityPeriod());
+        tokenMetadataRetrievalResponse.setTimeCreated(tokenMetadataDTO.getTimeCreated());
+        tokenMetadataRetrievalResponse.setScope(tokenMetadataDTO.getScope());
+
+        return tokenMetadataRetrievalResponse;
     }
 }

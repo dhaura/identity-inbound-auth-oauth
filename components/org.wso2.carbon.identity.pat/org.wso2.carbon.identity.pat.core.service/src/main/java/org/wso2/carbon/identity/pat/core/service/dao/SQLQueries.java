@@ -40,6 +40,13 @@ public class SQLQueries {
         public static final String STORE_PAT_DATA = "INSERT INTO IDN_PAT_DATA " +
                 "VALUES (?,?,?)";
 
+        public static final String GET_TOKEN_METADATA = "SELECT TOKEN_ID, ALIAS, DESCRIPTION, VALIDITY_PERIOD, " +
+                "TIME_CREATED FROM IDN_OAUTH2_ACCESS_TOKEN NATURAL JOIN IDN_PAT_DATA "+
+                "WHERE TOKEN_ID = ? AND GRANT_TYPE = ?";
+
+        public static final String GET_TOKEN_SCOPES = "SELECT TOKEN_SCOPE FROM IDN_OAUTH2_ACCESS_TOKEN_SCOPE " +
+                "WHERE TOKEN_ID = ?";
+
     }
 }
 

@@ -19,10 +19,16 @@
 package org.wso2.carbon.identity.pat.core.service.dao;
 
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
+import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of abstract DAO layer.
@@ -49,5 +55,68 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
         }
     }
+
+    @Override
+    public TokenMetadataDTO getTokenMetadata(String tokenID) {
+        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+            try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
+                    PATSQLQueries.GET_TOKEN_METADATA)) {
+
+                prepStmt.setString(1, tokenID);
+                prepStmt.setString(2, PATConstants.PAT);
+                ResultSet resultSet = prepStmt.executeQuery();
+
+                if (resultSet.next()){
+                    TokenMetadataDTO tokenMetadataDTO = new TokenMetadataDTO();
+                    tokenMetadataDTO.setTokenId(resultSet.getString(PATConstants.TOKEN_ID));
+                    tokenMetadataDTO.setAlias(resultSet.getString(PATConstants.ALIAS));
+                    tokenMetadataDTO.setDescription(resultSet.getString(PATConstants.DESCRIPTION));
+                    tokenMetadataDTO.setValidityPeriod((int) TimeUnit.MILLISECONDS.toSeconds(resultSet.getInt(PATConstants.VALIDITY_PERIOD)));
+                    tokenMetadataDTO.setTimeCreated(resultSet.getString(PATConstants.TIME_CREATED));
+                    return tokenMetadataDTO;
+                }
+                // TODO: handle exception
+                return null;
+
+
+            } catch (SQLException e) {
+                // TODO: handle exception
+                IdentityDatabaseUtil.rollbackTransaction(connection);
+                return null;
+            }
+        } catch (SQLException e) {
+            // TODO: handle exception
+            return null;
+        }
+    }
+
+    @Override
+    public List<String> getTokenScopes(String tokenID) {
+        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+            try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
+                    PATSQLQueries.GET_TOKEN_SCOPES)) {
+
+                prepStmt.setString(1, tokenID);
+                ResultSet resultSet = prepStmt.executeQuery();
+
+                List<String> scopes = new ArrayList<>();
+
+                while (resultSet.next()){
+                    scopes.add(resultSet.getString("token_scope"));
+                }
+                return scopes;
+
+
+            } catch (SQLException e) {
+                // TODO: handle exception
+                IdentityDatabaseUtil.rollbackTransaction(connection);
+                return null;
+            }
+        } catch (SQLException e) {
+            // TODO: handle exception
+            return null;
+        }
+    }
+
 
 }

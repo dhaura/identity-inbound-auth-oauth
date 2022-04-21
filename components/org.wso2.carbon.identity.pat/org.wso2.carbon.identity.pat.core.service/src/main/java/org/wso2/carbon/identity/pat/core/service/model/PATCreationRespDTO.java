@@ -3,7 +3,7 @@ package org.wso2.carbon.identity.pat.core.service.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PATCreationResponseData {
+public class PATCreationRespDTO {
     private String accessToken;
     private List<String> scope = new ArrayList<>();
 
