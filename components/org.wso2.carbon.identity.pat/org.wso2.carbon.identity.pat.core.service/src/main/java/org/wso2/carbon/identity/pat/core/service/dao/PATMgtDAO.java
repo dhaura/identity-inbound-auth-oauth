@@ -29,6 +29,8 @@ public interface PATMgtDAO {
 
     public void insertPATData(String tokenID, String alias, String description);
     public TokenMetadataDTO getTokenMetadata(String tokenID);
+    public List<TokenMetadataDTO> getTokensMetadata(String userID);
     public List<String> getTokenScopes(String tokenID);
+    public String getAccessToken(String tokenID);
 
 }

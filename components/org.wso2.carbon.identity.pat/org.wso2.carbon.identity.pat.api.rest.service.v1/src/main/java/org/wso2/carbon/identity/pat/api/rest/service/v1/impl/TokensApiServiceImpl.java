@@ -34,7 +34,7 @@ public class TokensApiServiceImpl implements TokensApiService {
     public Response tokensGet() {
 
         // do some magic!
-        return Response.ok().entity("magic!").build();
+        return Response.ok().entity(tokenManagementApiService.getTokensMetadata()).build();
     }
 
     @Override
@@ -46,9 +46,10 @@ public class TokensApiServiceImpl implements TokensApiService {
 
     @Override
     public Response tokensTokenIdDelete(String tokenId) {
+        tokenManagementApiService.revokePAT(tokenId);
 
         // do some magic!
-        return Response.ok().entity("magic!").build();
+        return Response.noContent().build();
     }
 
     @Override

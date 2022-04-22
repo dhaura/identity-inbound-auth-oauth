@@ -10,5 +10,7 @@ public class PATConstants {
     public static final String TIME_CREATED = "time_created";
     public static final String SCOPE = "scope";
     public static final String ID_TOKEN_HINT = "id_token_hint";
+    public static final String TOKEN_SCOPE = "token_scope";
+    public static final String ACCESS_TOKEN = "access_token";
 
 }

@@ -89,6 +89,7 @@
                             javax.management,
                             javax.naming.directory,
                             javax.security.auth.callback,
+                            javax.servlet.http.*; version ="${imp.pkg.version.javax.servlet}",
 
                             org.w3c.dom,
 

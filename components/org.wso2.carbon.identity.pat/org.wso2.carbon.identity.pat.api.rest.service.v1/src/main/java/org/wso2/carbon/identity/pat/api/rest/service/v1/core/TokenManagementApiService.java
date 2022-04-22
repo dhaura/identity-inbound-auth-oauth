@@ -9,6 +9,7 @@ import org.wso2.carbon.identity.pat.core.service.model.PATCreationRespDTO;
 import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TokenManagementApiService {
 
@@ -20,6 +21,15 @@ public class TokenManagementApiService {
     public TokenMetadataRetrievalResponse getTokenMetadata(String tokenId){
         TokenMetadataDTO tokenMetadataDTO = PATApiMgtDataHolder.getPatManagementService().getTokenMetadata(tokenId);
         return getTokenMetadataRetrievalResponse(tokenMetadataDTO);
+    }
+
+    public List<TokenMetadataRetrievalResponse> getTokensMetadata(){
+        List<TokenMetadataDTO> tokenMetadataDTOList = PATApiMgtDataHolder.getPatManagementService().getTokensMetadata();
+        return getTokensMetadataRetrievalResponse(tokenMetadataDTOList);
+    }
+
+    public void revokePAT(String tokenId){
+        PATApiMgtDataHolder.getPatManagementService().revokePAT(tokenId);
     }
 
     private PATCreationReqDTO getPATCreationDataObject(PATCreationRequest patCreationRequest){
@@ -54,5 +64,17 @@ public class TokenManagementApiService {
         tokenMetadataRetrievalResponse.setScope(tokenMetadataDTO.getScope());
 
         return tokenMetadataRetrievalResponse;
+    }
+
+    private List<TokenMetadataRetrievalResponse> getTokensMetadataRetrievalResponse(List<TokenMetadataDTO> tokenMetadataDTOList){
+        List<TokenMetadataRetrievalResponse> tokenMetadataRetrievalResponseList = new ArrayList<>();
+
+        for (TokenMetadataDTO tokenMetadataDTO: tokenMetadataDTOList){
+            TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse = getTokenMetadataRetrievalResponse(tokenMetadataDTO);
+
+            tokenMetadataRetrievalResponseList.add(tokenMetadataRetrievalResponse);
+        }
+
+        return tokenMetadataRetrievalResponseList;
     }
 }

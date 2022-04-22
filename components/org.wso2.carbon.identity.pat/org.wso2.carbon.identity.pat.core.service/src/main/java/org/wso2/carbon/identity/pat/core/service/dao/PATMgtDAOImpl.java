@@ -91,6 +91,64 @@ public class PATMgtDAOImpl implements PATMgtDAO {
     }
 
     @Override
+    public List<TokenMetadataDTO> getTokensMetadata(String userID) {
+        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+            try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
+                    PATSQLQueries.GET_TOKENS_METADATA)) {
+
+                prepStmt.setString(1, userID);
+                prepStmt.setString(2, PATConstants.PAT);
+                ResultSet resultSet = prepStmt.executeQuery();
+
+                String tokenID = null;
+                TokenMetadataDTO tokenMetadataDTO = null;
+                List<TokenMetadataDTO> tokenMetadataDTOList = new ArrayList<>();
+                List<String> scopes = null;
+
+                while (resultSet.next()){
+                    if (tokenID == null || !tokenID.equals(resultSet.getString(PATConstants.TOKEN_ID))){
+                        if (tokenID != null){
+                            tokenMetadataDTO.setScope(scopes);
+                            tokenMetadataDTOList.add(tokenMetadataDTO);
+                        }
+                        tokenID = resultSet.getString(PATConstants.TOKEN_ID);
+
+                        scopes = new ArrayList<>();
+                        scopes.add(resultSet.getString(PATConstants.TOKEN_SCOPE));
+
+                        tokenMetadataDTO = new TokenMetadataDTO();
+                        tokenMetadataDTO.setTokenId(tokenID);
+                        tokenMetadataDTO.setAlias(resultSet.getString(PATConstants.ALIAS));
+                        tokenMetadataDTO.setDescription(resultSet.getString(PATConstants.DESCRIPTION));
+                        tokenMetadataDTO.setValidityPeriod((int) TimeUnit.MILLISECONDS.toSeconds(resultSet.getInt(PATConstants.VALIDITY_PERIOD)));
+                        tokenMetadataDTO.setTimeCreated(resultSet.getString(PATConstants.TIME_CREATED));
+                    }else{
+                        scopes.add(resultSet.getString(PATConstants.TOKEN_SCOPE));
+                    }
+                }
+
+                if (tokenMetadataDTO != null){
+                    tokenMetadataDTO.setScope(scopes);
+                    tokenMetadataDTOList.add(tokenMetadataDTO);
+                    return tokenMetadataDTOList;
+                }
+
+                // TODO: handle exception
+                return null;
+
+
+            } catch (SQLException e) {
+                // TODO: handle exception
+                IdentityDatabaseUtil.rollbackTransaction(connection);
+                return null;
+            }
+        } catch (SQLException e) {
+            // TODO: handle exception
+            return null;
+        }
+    }
+
+    @Override
     public List<String> getTokenScopes(String tokenID) {
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
@@ -102,9 +160,37 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 List<String> scopes = new ArrayList<>();
 
                 while (resultSet.next()){
-                    scopes.add(resultSet.getString("token_scope"));
+                    scopes.add(resultSet.getString(PATConstants.TOKEN_SCOPE));
                 }
                 return scopes;
+
+
+            } catch (SQLException e) {
+                // TODO: handle exception
+                IdentityDatabaseUtil.rollbackTransaction(connection);
+                return null;
+            }
+        } catch (SQLException e) {
+            // TODO: handle exception
+            return null;
+        }
+    }
+
+    @Override
+    public String getAccessToken(String tokenID) {
+        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+            try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
+                    PATSQLQueries.GET_ACCESS_TOKEN)) {
+
+                prepStmt.setString(1, tokenID);
+                ResultSet resultSet = prepStmt.executeQuery();
+
+                if (resultSet.next()){
+                    String accessToken = resultSet.getString(PATConstants.ACCESS_TOKEN);
+                    return accessToken;
+                }
+                // TODO: handle exception
+                return null;
 
 
             } catch (SQLException e) {
