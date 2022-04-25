@@ -32,5 +32,6 @@ public interface PATMgtDAO {
     public List<TokenMetadataDTO> getTokensMetadata(String userID);
     public List<String> getTokenScopes(String tokenID);
     public String getAccessToken(String tokenID);
+    public String getClientIDFromTokenID(String tokenID);
 
 }

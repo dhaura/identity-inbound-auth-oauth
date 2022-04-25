@@ -49,10 +49,11 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 IdentityDatabaseUtil.commitTransaction(connection);
 
             } catch (SQLException e) {
+                // TODO: handle exception
                 IdentityDatabaseUtil.rollbackTransaction(connection);
             }
         } catch (SQLException e) {
-
+            // TODO: handle exception
         }
     }
 
@@ -188,6 +189,34 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 if (resultSet.next()){
                     String accessToken = resultSet.getString(PATConstants.ACCESS_TOKEN);
                     return accessToken;
+                }
+                // TODO: handle exception
+                return null;
+
+
+            } catch (SQLException e) {
+                // TODO: handle exception
+                IdentityDatabaseUtil.rollbackTransaction(connection);
+                return null;
+            }
+        } catch (SQLException e) {
+            // TODO: handle exception
+            return null;
+        }
+    }
+
+    @Override
+    public String getClientIDFromTokenID(String tokenID) {
+        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+            try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
+                    PATSQLQueries.GET_CLIENT_ID_FROM_TOKEN_ID)) {
+
+                prepStmt.setString(1, tokenID);
+                ResultSet resultSet = prepStmt.executeQuery();
+
+                if (resultSet.next()){
+                    String clientID = resultSet.getString(PATConstants.INBOUND_AUTH_KEY);
+                    return clientID;
                 }
                 // TODO: handle exception
                 return null;

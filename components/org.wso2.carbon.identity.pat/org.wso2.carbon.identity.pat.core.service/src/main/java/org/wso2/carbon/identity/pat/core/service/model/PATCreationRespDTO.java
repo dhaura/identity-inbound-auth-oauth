@@ -4,7 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PATCreationRespDTO {
+    private String tokenId;
     private String accessToken;
+    private String alias;
+    private String description;
+
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     private List<String> scope = new ArrayList<>();
 
     private long validityPeriod;

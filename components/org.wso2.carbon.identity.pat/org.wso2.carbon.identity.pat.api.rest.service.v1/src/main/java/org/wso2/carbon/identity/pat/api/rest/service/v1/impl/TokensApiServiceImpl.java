@@ -39,9 +39,11 @@ public class TokensApiServiceImpl implements TokensApiService {
 
     @Override
     public Response tokensPost(PATCreationRequest paTCreationRequest) {
+        PATCreationResponse patCreationResponse = tokenManagementApiService.issuePAT(paTCreationRequest);
+        String tokenId = patCreationResponse.getTokenId();
 
         // do some magic!
-        return Response.ok().entity(tokenManagementApiService.issuePAT(paTCreationRequest)).build();
+        return Response.created(tokenManagementApiService.getResourceLocation(tokenId)).entity(patCreationResponse).build();
     }
 
     @Override

@@ -39,8 +39,7 @@ public class PATManagementServiceImpl implements PATManagementService{
                 // TODO: handle error
                 return null;
             } else {
-                // TODO: return alias and description as well
-                return getPATCreationResponse(oauth2AccessTokenResp);
+                return getPATCreationResponse(oauth2AccessTokenResp, patCreationReqDTO);
             }
         }finally {
             PrivilegedCarbonContext.endTenantFlow();
@@ -75,8 +74,9 @@ public class PATManagementServiceImpl implements PATManagementService{
 
             PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
             String accessToken = patMgtDAO.getAccessToken(tokenId);
+            String clientID = patMgtDAO.getClientIDFromTokenID(tokenId);
 
-            OAuthRevocationRequestDTO revokeRequest = buildOAuthRevocationRequest(accessToken);
+            OAuthRevocationRequestDTO revokeRequest = buildOAuthRevocationRequest(accessToken, clientID);
             OAuthRevocationResponseDTO oauthRevokeResp = PATUtil.getOAuth2Service().revokeTokenByOAuthClient(revokeRequest);
 
             if (oauthRevokeResp.getErrorMsg() != null) {
@@ -109,18 +109,17 @@ public class PATManagementServiceImpl implements PATManagementService{
 
         return tokenReqDTO;
     }
-    private OAuthRevocationRequestDTO buildOAuthRevocationRequest(String accessToken) {
+    private OAuthRevocationRequestDTO buildOAuthRevocationRequest(String accessToken, String clientID) {
 
         OAuthRevocationRequestDTO oAuthRevocationRequestDTO = new OAuthRevocationRequestDTO();
 
         OAuthClientAuthnContext oauthClientAuthnContext = new OAuthClientAuthnContext();
-        // TODO: get the client id from the token id
-        oauthClientAuthnContext.setClientId("JM6vFAVXAAHA1Jwhwnv7n4cNIP0a");
+        oauthClientAuthnContext.setClientId(clientID);
         oauthClientAuthnContext.setAuthenticated(true);
         oauthClientAuthnContext.addAuthenticator("BasicOAuthClientCredAuthenticator");
 
         oAuthRevocationRequestDTO.setOauthClientAuthnContext(oauthClientAuthnContext);
-        oAuthRevocationRequestDTO.setConsumerKey("JM6vFAVXAAHA1Jwhwnv7n4cNIP0a");
+        oAuthRevocationRequestDTO.setConsumerKey(clientID);
         oAuthRevocationRequestDTO.setTokenType(PATConstants.PAT);
         oAuthRevocationRequestDTO.setToken(accessToken);
 
@@ -139,11 +138,16 @@ public class PATManagementServiceImpl implements PATManagementService{
         return requestParameters;
     }
 
-    private PATCreationRespDTO getPATCreationResponse(OAuth2AccessTokenRespDTO oauth2AccessTokenRespDTO){
+    private PATCreationRespDTO getPATCreationResponse(OAuth2AccessTokenRespDTO oauth2AccessTokenRespDTO, PATCreationReqDTO patCreationReqDTO){
         PATCreationRespDTO patCreationRespDTO = new PATCreationRespDTO();
+
+        patCreationRespDTO.setTokenId(oauth2AccessTokenRespDTO.getTokenId());
         patCreationRespDTO.setAccessToken(oauth2AccessTokenRespDTO.getAccessToken());
+        patCreationRespDTO.setAlias(patCreationReqDTO.getAlias());
+        patCreationRespDTO.setDescription(patCreationReqDTO.getDescription());
         patCreationRespDTO.setValidityPeriod(oauth2AccessTokenRespDTO.getExpiresIn());
         patCreationRespDTO.setScope(Arrays.asList(oauth2AccessTokenRespDTO.getAuthorizedScopes().split(" ")));
+
         return patCreationRespDTO;
     }
 }

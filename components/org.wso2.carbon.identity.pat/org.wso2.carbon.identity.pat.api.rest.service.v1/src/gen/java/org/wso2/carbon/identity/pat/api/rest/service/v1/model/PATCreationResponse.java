@@ -34,10 +34,33 @@ import javax.xml.bind.annotation.*;
 
 public class PATCreationResponse  {
   
+    private String tokenId;
     private String accessToken;
+    private String alias;
+    private String description;
     private List<String> scope = new ArrayList<>();
 
     private Integer validityPeriod;
+
+    /**
+    **/
+    public PATCreationResponse tokenId(String tokenId) {
+
+        this.tokenId = tokenId;
+        return this;
+    }
+    
+    @ApiModelProperty(example = "00a12e21-64a1-4b60-9434-3d06b222291c", required = true, value = "")
+    @JsonProperty("token_id")
+    @Valid
+    @NotNull(message = "Property tokenId cannot be null.")
+
+    public String getTokenId() {
+        return tokenId;
+    }
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
 
     /**
     **/
@@ -57,6 +80,46 @@ public class PATCreationResponse  {
     }
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    /**
+    **/
+    public PATCreationResponse alias(String alias) {
+
+        this.alias = alias;
+        return this;
+    }
+    
+    @ApiModelProperty(example = "Sample Alias", required = true, value = "")
+    @JsonProperty("alias")
+    @Valid
+    @NotNull(message = "Property alias cannot be null.")
+
+    public String getAlias() {
+        return alias;
+    }
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    /**
+    **/
+    public PATCreationResponse description(String description) {
+
+        this.description = description;
+        return this;
+    }
+    
+    @ApiModelProperty(example = "This is a description for Sample Alias", required = true, value = "")
+    @JsonProperty("description")
+    @Valid
+    @NotNull(message = "Property description cannot be null.")
+
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
@@ -116,14 +179,17 @@ public class PATCreationResponse  {
             return false;
         }
         PATCreationResponse paTCreationResponse = (PATCreationResponse) o;
-        return Objects.equals(this.accessToken, paTCreationResponse.accessToken) &&
+        return Objects.equals(this.tokenId, paTCreationResponse.tokenId) &&
+            Objects.equals(this.accessToken, paTCreationResponse.accessToken) &&
+            Objects.equals(this.alias, paTCreationResponse.alias) &&
+            Objects.equals(this.description, paTCreationResponse.description) &&
             Objects.equals(this.scope, paTCreationResponse.scope) &&
             Objects.equals(this.validityPeriod, paTCreationResponse.validityPeriod);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accessToken, scope, validityPeriod);
+        return Objects.hash(tokenId, accessToken, alias, description, scope, validityPeriod);
     }
 
     @Override
@@ -132,7 +198,10 @@ public class PATCreationResponse  {
         StringBuilder sb = new StringBuilder();
         sb.append("class PATCreationResponse {\n");
         
+        sb.append("    tokenId: ").append(toIndentedString(tokenId)).append("\n");
         sb.append("    accessToken: ").append(toIndentedString(accessToken)).append("\n");
+        sb.append("    alias: ").append(toIndentedString(alias)).append("\n");
+        sb.append("    description: ").append(toIndentedString(description)).append("\n");
         sb.append("    scope: ").append(toIndentedString(scope)).append("\n");
         sb.append("    validityPeriod: ").append(toIndentedString(validityPeriod)).append("\n");
         sb.append("}");

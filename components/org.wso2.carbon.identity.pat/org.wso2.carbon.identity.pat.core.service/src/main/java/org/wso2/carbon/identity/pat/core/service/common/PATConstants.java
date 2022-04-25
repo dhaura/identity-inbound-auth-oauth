@@ -12,5 +12,6 @@ public class PATConstants {
     public static final String ID_TOKEN_HINT = "id_token_hint";
     public static final String TOKEN_SCOPE = "token_scope";
     public static final String ACCESS_TOKEN = "access_token";
+    public static final String INBOUND_AUTH_KEY = "inbound_auth_key";
 
 }

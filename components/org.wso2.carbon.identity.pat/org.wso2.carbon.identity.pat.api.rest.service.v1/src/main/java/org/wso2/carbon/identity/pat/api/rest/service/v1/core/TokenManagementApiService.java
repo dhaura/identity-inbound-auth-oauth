@@ -1,5 +1,7 @@
 package org.wso2.carbon.identity.pat.api.rest.service.v1.core;
 
+import org.wso2.carbon.identity.core.ServiceURLBuilder;
+import org.wso2.carbon.identity.core.URLBuilderException;
 import org.wso2.carbon.identity.pat.api.rest.commons.PATApiMgtDataHolder;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationRequest;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationResponse;
@@ -8,6 +10,7 @@ import org.wso2.carbon.identity.pat.core.service.model.PATCreationReqDTO;
 import org.wso2.carbon.identity.pat.core.service.model.PATCreationRespDTO;
 import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,11 @@ public class TokenManagementApiService {
         PATApiMgtDataHolder.getPatManagementService().revokePAT(tokenId);
     }
 
+    public URI getResourceLocation(String tokenId) {
+
+        return buildURIForHeader("api/pat/v1/tokens/" + tokenId);
+    }
+
     private PATCreationReqDTO getPATCreationDataObject(PATCreationRequest patCreationRequest){
         PATCreationReqDTO patCreationReqDTO = new PATCreationReqDTO();
 
@@ -47,7 +55,11 @@ public class TokenManagementApiService {
 
     private PATCreationResponse getPATCreationResponse(PATCreationRespDTO patCreationRespDTO){
         PATCreationResponse patCreationResponse = new PATCreationResponse();
+
+        patCreationResponse.setTokenId(patCreationRespDTO.getTokenId());
         patCreationResponse.setAccessToken(patCreationRespDTO.getAccessToken());
+        patCreationResponse.setAlias(patCreationRespDTO.getAlias());
+        patCreationResponse.setDescription(patCreationRespDTO.getDescription());
         patCreationResponse.setScope(patCreationRespDTO.getScope());
         patCreationResponse.setValidityPeriod((int) patCreationRespDTO.getValidityPeriod());
 
@@ -76,5 +88,24 @@ public class TokenManagementApiService {
         }
 
         return tokenMetadataRetrievalResponseList;
+    }
+
+    /**
+     * Builds get url.
+     *
+     * @param endpoint Endpoint of the get request.
+     * @return URI     Get URI.
+     */
+    public static URI buildURIForHeader(String endpoint) {
+
+        URI loc = null;
+        try {
+            String url = ServiceURLBuilder.create().addPath(endpoint).build().getAbsolutePublicURL();
+            loc = URI.create(url);
+        } catch (URLBuilderException e) {
+            String errorDescription = "Server encountered an error while building URL for response header.";
+            //TODO: handle error
+        }
+        return loc;
     }
 }

@@ -180,14 +180,26 @@ components:
     PATCreationResponse:
       type: object
       required:
+        - token_id
         - access_token
+        - alias
+        - description
         - scope
         - validity_period
       properties:
+        token_id:
+          type: string
+          example: "00a12e21-64a1-4b60-9434-3d06b222291c"
         access_token:
           type:
             string
           example: "6edb0049-0ea3-3b26-9aa3-152b1891d200"
+        alias:
+          type: string
+          example: "Sample Alias"
+        description:
+          type: string
+          example: "This is a description for Sample Alias"
         scope:
           items:
             type: string
