@@ -109,9 +109,6 @@
 
                             com.google.gdata.client.authn.oauth; version="${gdata-core.imp.pkg.version.range}",
 
-                            com.nimbusds.jose.*; version="${nimbusds.osgi.version.range}",
-                            com.nimbusds.jwt; version="${nimbusds.osgi.version.range}",
-
                             waffle.apache; version="${waffle.imp.pkg.version.range}",
                             waffle.util; version="${waffle.imp.pkg.version.range}",
                             waffle.windows.auth; version="${waffle.imp.pkg.version.range}",
@@ -145,8 +142,6 @@
                             !org.wso2.carbon.identity.oauth.internal; version
                             ="${identity.inbound.auth.oauth.imp.pkg.version.range}",
                             org.wso2.carbon.identity.oauth.*; version
-                            ="${identity.inbound.auth.oauth.imp.pkg.version.range}",
-                            org.wso2.carbon.identity.oidc.session.*; version
                             ="${identity.inbound.auth.oauth.imp.pkg.version.range}",
                         </Import-Package>
                         <Export-Package>

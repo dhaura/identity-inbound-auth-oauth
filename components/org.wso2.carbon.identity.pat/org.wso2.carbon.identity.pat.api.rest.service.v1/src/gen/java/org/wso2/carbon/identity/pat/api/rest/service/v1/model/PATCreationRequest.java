@@ -39,7 +39,6 @@ public class PATCreationRequest  {
     private Integer validityPeriod;
     private List<String> scope = new ArrayList<>();
 
-    private String idTokenHint;
     private String clientId;
 
     /**
@@ -110,7 +109,7 @@ public class PATCreationRequest  {
         return this;
     }
     
-    @ApiModelProperty(example = "[\"openid\",\"address\"]", required = true, value = "")
+    @ApiModelProperty(example = "[\"internal_application_mgt_view\",\"internal_claim_meta_create\"]", required = true, value = "")
     @JsonProperty("scope")
     @Valid
     @NotNull(message = "Property scope cannot be null.")
@@ -128,26 +127,6 @@ public class PATCreationRequest  {
     }
 
         /**
-    **/
-    public PATCreationRequest idTokenHint(String idTokenHint) {
-
-        this.idTokenHint = idTokenHint;
-        return this;
-    }
-    
-    @ApiModelProperty(example = "eyJ4NXQiOiJNREpsTmpJeE4yRTFPR1psT0dWbU1HUXhPVEZsTXpCbU5tRmpaalEwWTJZd09HWTBOMkkwWXpFNFl6WmpOalJoWW1SbU1tUTBPRGRpTkRoak1HRXdNQSIsImtpZCI6Ik1ESmxOakl4TjJFMU9HWmxPR1ZtTUdReE9URmxNekJtTm1GalpqUTBZMll3T0dZME4ySTBZekU0WXpaak5qUmhZbVJtTW1RME9EZGlORGhqTUdFd01BX1JTMjU2IiwiYWxnIjoiUlMyNTYifQ.eyJhdF9oYXNoIjoiSkNLVW1PUDVLRndHdkdiSzNBSW9YQSIsImF1ZCI6IkpNNnZGQVZYQUFIQTFKd2h3bnY3bjRjTklQMGEiLCJzdWIiOiI3NmQyNmJiZS05MDEwLTRmZTItYmQ3Ni1hNTU5Y2VmMTkyYWEiLCJuYmYiOjE2NDcyNDY4MjMsImF6cCI6IkpNNnZGQVZYQUFIQTFKd2h3bnY3bjRjTklQMGEiLCJhbXIiOlsicGFzc3dvcmQiXSwiaXNzIjoiaHR0cHM6XC9cL2xvY2FsaG9zdDo5NDQzXC9vYXV0aDJcL3Rva2VuIiwiZXhwIjoxNjQ3MjUwNDIzLCJpYXQiOjE2NDcyNDY4MjN9.JfzNT4tx0MsYH5tcHf0Hz4oO_0wnjWro397U6uHwTlONX1w3cdPO9v0hihpcfVq5WOb8VfevGv8EfFwedTZ1fhYg0E1olMjRYh_pajpeOzw8uiej4VuY4dqR5V-KUn_sAVbpkV9Y09VdzSkU5JA2CXhSKy-eLPbvEU8REeHunx3vq7oVz9TQ0EWAnoveomyET6kcuboXWOsD3qBsZaKfr42s5Lr-51H1siaDwuD27REBolUPynrt-YrRqCZ2TFNSR2CfRA0zEaBhikAfsqcBvHQ464iFbXAQcqb8G6B8O6LHoPKVNZlGux-hjoXWAYrUd0axXEN1qDB2JeJiOuv_FA", required = true, value = "")
-    @JsonProperty("id_token_hint")
-    @Valid
-    @NotNull(message = "Property idTokenHint cannot be null.")
-
-    public String getIdTokenHint() {
-        return idTokenHint;
-    }
-    public void setIdTokenHint(String idTokenHint) {
-        this.idTokenHint = idTokenHint;
-    }
-
-    /**
     **/
     public PATCreationRequest clientId(String clientId) {
 
@@ -183,13 +162,12 @@ public class PATCreationRequest  {
             Objects.equals(this.description, paTCreationRequest.description) &&
             Objects.equals(this.validityPeriod, paTCreationRequest.validityPeriod) &&
             Objects.equals(this.scope, paTCreationRequest.scope) &&
-            Objects.equals(this.idTokenHint, paTCreationRequest.idTokenHint) &&
             Objects.equals(this.clientId, paTCreationRequest.clientId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(alias, description, validityPeriod, scope, idTokenHint, clientId);
+        return Objects.hash(alias, description, validityPeriod, scope, clientId);
     }
 
     @Override
@@ -202,7 +180,6 @@ public class PATCreationRequest  {
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
         sb.append("    validityPeriod: ").append(toIndentedString(validityPeriod)).append("\n");
         sb.append("    scope: ").append(toIndentedString(scope)).append("\n");
-        sb.append("    idTokenHint: ").append(toIndentedString(idTokenHint)).append("\n");
         sb.append("    clientId: ").append(toIndentedString(clientId)).append("\n");
         sb.append("}");
         return sb.toString();

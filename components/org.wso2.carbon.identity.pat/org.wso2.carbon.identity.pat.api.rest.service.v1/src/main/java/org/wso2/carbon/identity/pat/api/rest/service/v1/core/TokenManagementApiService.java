@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 package org.wso2.carbon.identity.pat.api.rest.service.v1.core;
 
 import org.wso2.carbon.identity.core.ServiceURLBuilder;
@@ -16,22 +25,22 @@ import java.util.List;
 
 public class TokenManagementApiService {
 
-    public PATCreationResponse issuePAT(PATCreationRequest patCreationRequest){
+    public PATCreationResponse issuePAT(PATCreationRequest patCreationRequest) {
         PATCreationReqDTO patCreationReqDTO = getPATCreationDataObject(patCreationRequest);
         return getPATCreationResponse(PATApiMgtDataHolder.getPatManagementService().issuePAT(patCreationReqDTO));
     }
 
-    public TokenMetadataRetrievalResponse getTokenMetadata(String tokenId){
+    public TokenMetadataRetrievalResponse getTokenMetadata(String tokenId) {
         TokenMetadataDTO tokenMetadataDTO = PATApiMgtDataHolder.getPatManagementService().getTokenMetadata(tokenId);
         return getTokenMetadataRetrievalResponse(tokenMetadataDTO);
     }
 
-    public List<TokenMetadataRetrievalResponse> getTokensMetadata(){
+    public List<TokenMetadataRetrievalResponse> getTokensMetadata() {
         List<TokenMetadataDTO> tokenMetadataDTOList = PATApiMgtDataHolder.getPatManagementService().getTokensMetadata();
         return getTokensMetadataRetrievalResponse(tokenMetadataDTOList);
     }
 
-    public void revokePAT(String tokenId){
+    public void revokePAT(String tokenId) {
         PATApiMgtDataHolder.getPatManagementService().revokePAT(tokenId);
     }
 
@@ -40,20 +49,19 @@ public class TokenManagementApiService {
         return buildURIForHeader("api/pat/v1/tokens/" + tokenId);
     }
 
-    private PATCreationReqDTO getPATCreationDataObject(PATCreationRequest patCreationRequest){
+    private PATCreationReqDTO getPATCreationDataObject(PATCreationRequest patCreationRequest) {
         PATCreationReqDTO patCreationReqDTO = new PATCreationReqDTO();
 
         patCreationReqDTO.setAlias(patCreationRequest.getAlias());
         patCreationReqDTO.setDescription(patCreationRequest.getDescription());
         patCreationReqDTO.setValidityPeriod(patCreationRequest.getValidityPeriod());
         patCreationReqDTO.setScope(patCreationRequest.getScope());
-        patCreationReqDTO.setIdTokenHint(patCreationRequest.getIdTokenHint());
         patCreationReqDTO.setClientID(patCreationRequest.getClientId());
 
         return patCreationReqDTO;
     }
 
-    private PATCreationResponse getPATCreationResponse(PATCreationRespDTO patCreationRespDTO){
+    private PATCreationResponse getPATCreationResponse(PATCreationRespDTO patCreationRespDTO) {
         PATCreationResponse patCreationResponse = new PATCreationResponse();
 
         patCreationResponse.setTokenId(patCreationRespDTO.getTokenId());
@@ -66,7 +74,7 @@ public class TokenManagementApiService {
         return patCreationResponse;
     }
 
-    private TokenMetadataRetrievalResponse getTokenMetadataRetrievalResponse(TokenMetadataDTO tokenMetadataDTO){
+    private TokenMetadataRetrievalResponse getTokenMetadataRetrievalResponse(TokenMetadataDTO tokenMetadataDTO) {
         TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse = new TokenMetadataRetrievalResponse();
         tokenMetadataRetrievalResponse.setTokenId(tokenMetadataDTO.getTokenId());
         tokenMetadataRetrievalResponse.setAlias(tokenMetadataDTO.getAlias());
@@ -78,10 +86,10 @@ public class TokenManagementApiService {
         return tokenMetadataRetrievalResponse;
     }
 
-    private List<TokenMetadataRetrievalResponse> getTokensMetadataRetrievalResponse(List<TokenMetadataDTO> tokenMetadataDTOList){
+    private List<TokenMetadataRetrievalResponse> getTokensMetadataRetrievalResponse(List<TokenMetadataDTO> tokenMetadataDTOList) {
         List<TokenMetadataRetrievalResponse> tokenMetadataRetrievalResponseList = new ArrayList<>();
 
-        for (TokenMetadataDTO tokenMetadataDTO: tokenMetadataDTOList){
+        for (TokenMetadataDTO tokenMetadataDTO : tokenMetadataDTOList) {
             TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse = getTokenMetadataRetrievalResponse(tokenMetadataDTO);
 
             tokenMetadataRetrievalResponseList.add(tokenMetadataRetrievalResponse);

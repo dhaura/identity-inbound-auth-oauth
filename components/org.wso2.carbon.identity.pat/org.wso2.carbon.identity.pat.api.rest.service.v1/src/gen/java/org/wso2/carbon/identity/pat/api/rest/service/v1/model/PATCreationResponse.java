@@ -130,7 +130,7 @@ public class PATCreationResponse  {
         return this;
     }
     
-    @ApiModelProperty(example = "[\"openid\",\"address\"]", required = true, value = "")
+    @ApiModelProperty(example = "[\"internal_application_mgt_view\",\"internal_claim_meta_create\"]", required = true, value = "")
     @JsonProperty("scope")
     @Valid
     @NotNull(message = "Property scope cannot be null.")
