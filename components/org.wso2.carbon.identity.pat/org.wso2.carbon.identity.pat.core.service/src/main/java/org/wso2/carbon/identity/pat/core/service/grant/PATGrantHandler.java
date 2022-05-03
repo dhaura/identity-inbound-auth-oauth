@@ -109,10 +109,9 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         if (userStoreManager != null) {
-            UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
             User user = null;
             try {
-                user = userUniqueIDManger.getUser(userID, userStoreManager);
+                user = PATUtil.getUser(userID, userStoreManager);
             } catch (UserStoreException e) {
                 if (log.isDebugEnabled()) {
                     log.debug("Error occurred while extracting user from user id : " + userID, e);

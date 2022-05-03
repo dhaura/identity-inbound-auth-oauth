@@ -13,6 +13,10 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.oauth.OAuthAdminService;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.common.UserUniqueIDManger;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -71,6 +75,16 @@ public class PATUtil {
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
         carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
         carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+    }
+
+    /**
+     * This method will return the relevant user from the UserUniqueStoreManager
+     */
+    public static User getUser(String userID, AbstractUserStoreManager userStoreManager) throws UserStoreException {
+        UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
+        User user = userUniqueIDManger.getUser(userID, userStoreManager);
+
+        return user;
     }
 
 }

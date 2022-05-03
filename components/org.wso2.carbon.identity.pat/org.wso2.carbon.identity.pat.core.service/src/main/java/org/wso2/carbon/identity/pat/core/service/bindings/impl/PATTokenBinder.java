@@ -12,12 +12,13 @@ package org.wso2.carbon.identity.pat.core.service.bindings.impl;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.token.bindings.impl.AbstractTokenBinder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * Token Binding for PAT
@@ -29,8 +30,8 @@ public class PATTokenBinder extends AbstractTokenBinder {
     public Optional<String> getTokenBindingValue(OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO) {
 
         if (PAT_GRANT_TYPE.equals(oAuth2AccessTokenReqDTO.getGrantType())) {
-            String binding_value = UUID.randomUUID().toString();
-            return Optional.ofNullable(binding_value);
+            String bindingValue = UUID.randomUUID().toString();
+            return Optional.ofNullable(bindingValue);
 
         } else {
             return super.getTokenBindingValue(oAuth2AccessTokenReqDTO);
