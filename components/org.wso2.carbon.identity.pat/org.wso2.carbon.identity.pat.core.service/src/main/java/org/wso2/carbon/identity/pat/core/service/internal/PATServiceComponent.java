@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.*;
+import org.wso2.carbon.identity.oauth.common.token.bindings.TokenBinderInfo;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.pat.core.service.PATManagementService;
 import org.wso2.carbon.identity.pat.core.service.PATManagementServiceImpl;
@@ -33,7 +34,7 @@ public class PATServiceComponent {
         log.info("PAT Service Component Activation");
 
         PATTokenBinder patTokenBinder = new PATTokenBinder();
-        bundleContext.registerService(PATTokenBinder.class.getName(), patTokenBinder, null);
+        bundleContext.registerService(TokenBinderInfo.class.getName(), patTokenBinder, null);
 
         bundleContext.registerService(PATManagementService.class.getName(), new PATManagementServiceImpl(), null);
     }

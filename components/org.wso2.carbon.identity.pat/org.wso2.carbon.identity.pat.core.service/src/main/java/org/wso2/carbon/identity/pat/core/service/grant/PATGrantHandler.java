@@ -19,17 +19,13 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 import org.wso2.carbon.identity.oauth2.model.RequestParameter;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
-import org.wso2.carbon.identity.oauth2.token.bindings.TokenBinding;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
-import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.identity.pat.core.service.bindings.impl.PATTokenBinder;
 import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
 import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
 import org.wso2.carbon.identity.pat.core.service.dao.PATDAOFactory;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.user.core.common.UserUniqueIDManger;
 import org.wso2.carbon.user.core.service.RealmService;
 
 public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
@@ -45,7 +41,6 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
         if (StringUtils.isNotBlank(validityPeriod)) {
             tokReqMsgCtx.setValidityPeriod(Long.parseLong(validityPeriod));
         }
-        addTokenBinding(tokReqMsgCtx);
 
         OAuth2AccessTokenRespDTO responseDTO = super.issue(tokReqMsgCtx);
 
@@ -156,18 +151,6 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         return userStoreManager;
-    }
-
-    private void addTokenBinding(OAuthTokenReqMessageContext tokReqMsgCtx) {
-
-        PATTokenBinder patTokenBinder = new PATTokenBinder();
-        TokenBinding tokenBinding = new TokenBinding();
-        tokenBinding.setBindingValue(String.valueOf(patTokenBinder
-                .getTokenBindingValue(tokReqMsgCtx.getOauth2AccessTokenReqDTO())));
-        tokenBinding.setBindingReference(OAuth2Util.getTokenBindingReference(tokenBinding.getBindingValue()));
-        tokenBinding.setBindingType(patTokenBinder.getBindingType());
-
-        tokReqMsgCtx.setTokenBinding(tokenBinding);
     }
 
     private String getValueFromRequestParameters(RequestParameter[] parameters, String key) {
