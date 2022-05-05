@@ -49,16 +49,17 @@ public class PATMgtDAOImpl implements PATMgtDAO {
     }
 
     @Override
-    public TokenMetadataDTO getTokenMetadata(String tokenID) {
+    public TokenMetadataDTO getTokenMetadata(String tokenID, String userID) {
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
                     PATSQLQueries.GET_TOKEN_METADATA)) {
 
                 prepStmt.setString(1, tokenID);
-                prepStmt.setString(2, PATConstants.PAT);
+                prepStmt.setString(2, userID);
+                prepStmt.setString(3, PATConstants.PAT);
                 ResultSet resultSet = prepStmt.executeQuery();
 
-                if (resultSet.next()){
+                if (resultSet.next()) {
                     TokenMetadataDTO tokenMetadataDTO = new TokenMetadataDTO();
                     tokenMetadataDTO.setTokenId(resultSet.getString(PATConstants.TOKEN_ID));
                     tokenMetadataDTO.setAlias(resultSet.getString(PATConstants.ALIAS));

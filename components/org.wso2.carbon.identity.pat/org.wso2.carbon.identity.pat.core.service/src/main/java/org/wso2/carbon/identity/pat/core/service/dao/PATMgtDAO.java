@@ -19,7 +19,7 @@ import java.util.List;
 public interface PATMgtDAO {
 
     public void insertPATData(String tokenID, String alias, String description);
-    public TokenMetadataDTO getTokenMetadata(String tokenID);
+    public TokenMetadataDTO getTokenMetadata(String tokenID, String userID);
     public List<TokenMetadataDTO> getTokensMetadata(String userID);
     public List<String> getTokenScopes(String tokenID);
     public String getAccessToken(String tokenID);

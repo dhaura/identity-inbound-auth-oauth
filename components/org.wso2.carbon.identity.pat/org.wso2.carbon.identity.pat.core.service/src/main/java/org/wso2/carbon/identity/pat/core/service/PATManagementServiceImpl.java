@@ -57,9 +57,10 @@ public class PATManagementServiceImpl implements PATManagementService {
 
     @Override
     public TokenMetadataDTO getTokenMetadata(String tokenId) {
+        String userId = PATUtil.getUserID();
 
         PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
-        TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId);
+        TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId, userId);
         tokenMetadataDTO.setScope(patMgtDAO.getTokenScopes(tokenId));
 
         return tokenMetadataDTO;
@@ -78,26 +79,35 @@ public class PATManagementServiceImpl implements PATManagementService {
 
     @Override
     public void revokePAT(String tokenId) {
+        String userId = PATUtil.getUserID();
 
-        try {
-            PATUtil.startSuperTenantFlow();
+        PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
+        TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId, userId);
 
-            PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
-            String accessToken = patMgtDAO.getAccessToken(tokenId);
-            String clientID = patMgtDAO.getClientIDFromTokenID(tokenId);
+        if (tokenMetadataDTO != null) {
+            try {
+                PATUtil.startSuperTenantFlow();
 
-            OAuthRevocationRequestDTO revokeRequest = buildOAuthRevocationRequest(accessToken, clientID);
-            OAuthRevocationResponseDTO oauthRevokeResp = PATUtil.getOAuth2Service()
-                    .revokeTokenByOAuthClient(revokeRequest);
+                String accessToken = patMgtDAO.getAccessToken(tokenId);
+                String clientID = patMgtDAO.getClientIDFromTokenID(tokenId);
 
-            if (oauthRevokeResp.getErrorMsg() != null) {
-                // TODO: handle error
+                OAuthRevocationRequestDTO revokeRequest = buildOAuthRevocationRequest(accessToken, clientID);
+                OAuthRevocationResponseDTO oauthRevokeResp = PATUtil.getOAuth2Service()
+                        .revokeTokenByOAuthClient(revokeRequest);
+
+                if (oauthRevokeResp.getErrorMsg() != null) {
+                    // TODO: handle error
+                }
+
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+
             }
-
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-
+        } else {
+            // TODO: handle error
         }
+
+
     }
 
     private OAuth2AccessTokenReqDTO buildAccessTokenReqDTO(PATCreationReqDTO patCreationReqDTO, String userId) {
