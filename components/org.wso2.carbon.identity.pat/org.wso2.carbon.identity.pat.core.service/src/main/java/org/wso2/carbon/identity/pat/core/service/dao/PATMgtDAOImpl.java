@@ -17,7 +17,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -64,8 +68,13 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                     tokenMetadataDTO.setTokenId(resultSet.getString(PATConstants.TOKEN_ID));
                     tokenMetadataDTO.setAlias(resultSet.getString(PATConstants.ALIAS));
                     tokenMetadataDTO.setDescription(resultSet.getString(PATConstants.DESCRIPTION));
-                    tokenMetadataDTO.setValidityPeriod((int) TimeUnit.MILLISECONDS.toSeconds(resultSet.getInt(PATConstants.VALIDITY_PERIOD)));
-                    tokenMetadataDTO.setTimeCreated(resultSet.getString(PATConstants.TIME_CREATED));
+
+                    int validityPeriod = (int) TimeUnit.MILLISECONDS.toSeconds(resultSet
+                            .getInt(PATConstants.VALIDITY_PERIOD));
+                    String timeCreated = resultSet.getString(PATConstants.TIME_CREATED);
+                    String expiryTime = getExpiryTime(validityPeriod, timeCreated);
+                    tokenMetadataDTO.setTimeCreated(timeCreated);
+                    tokenMetadataDTO.setExpiryTime(expiryTime);
                     return tokenMetadataDTO;
                 }
                 // TODO: handle exception
@@ -98,9 +107,9 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 List<TokenMetadataDTO> tokenMetadataDTOList = new ArrayList<>();
                 List<String> scopes = null;
 
-                while (resultSet.next()){
-                    if (tokenID == null || !tokenID.equals(resultSet.getString(PATConstants.TOKEN_ID))){
-                        if (tokenID != null){
+                while (resultSet.next()) {
+                    if (tokenID == null || !tokenID.equals(resultSet.getString(PATConstants.TOKEN_ID))) {
+                        if (tokenID != null) {
                             tokenMetadataDTO.setScope(scopes);
                             tokenMetadataDTOList.add(tokenMetadataDTO);
                         }
@@ -113,14 +122,19 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                         tokenMetadataDTO.setTokenId(tokenID);
                         tokenMetadataDTO.setAlias(resultSet.getString(PATConstants.ALIAS));
                         tokenMetadataDTO.setDescription(resultSet.getString(PATConstants.DESCRIPTION));
-                        tokenMetadataDTO.setValidityPeriod((int) TimeUnit.MILLISECONDS.toSeconds(resultSet.getInt(PATConstants.VALIDITY_PERIOD)));
-                        tokenMetadataDTO.setTimeCreated(resultSet.getString(PATConstants.TIME_CREATED));
-                    }else{
+
+                        int validityPeriod = (int) TimeUnit.MILLISECONDS.toSeconds(resultSet
+                                .getInt(PATConstants.VALIDITY_PERIOD));
+                        String timeCreated = resultSet.getString(PATConstants.TIME_CREATED);
+                        String expiryTime = getExpiryTime(validityPeriod, timeCreated);
+                        tokenMetadataDTO.setTimeCreated(timeCreated);
+                        tokenMetadataDTO.setExpiryTime(expiryTime);
+                    } else {
                         scopes.add(resultSet.getString(PATConstants.TOKEN_SCOPE));
                     }
                 }
 
-                if (tokenMetadataDTO != null){
+                if (tokenMetadataDTO != null) {
                     tokenMetadataDTO.setScope(scopes);
                     tokenMetadataDTOList.add(tokenMetadataDTO);
                     return tokenMetadataDTOList;
@@ -152,7 +166,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
                 List<String> scopes = new ArrayList<>();
 
-                while (resultSet.next()){
+                while (resultSet.next()) {
                     scopes.add(resultSet.getString(PATConstants.TOKEN_SCOPE));
                 }
                 return scopes;
@@ -178,7 +192,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 prepStmt.setString(1, tokenID);
                 ResultSet resultSet = prepStmt.executeQuery();
 
-                if (resultSet.next()){
+                if (resultSet.next()) {
                     String accessToken = resultSet.getString(PATConstants.ACCESS_TOKEN);
                     return accessToken;
                 }
@@ -206,7 +220,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 prepStmt.setString(1, tokenID);
                 ResultSet resultSet = prepStmt.executeQuery();
 
-                if (resultSet.next()){
+                if (resultSet.next()) {
                     String clientID = resultSet.getString(PATConstants.INBOUND_AUTH_KEY);
                     return clientID;
                 }
@@ -222,6 +236,23 @@ public class PATMgtDAOImpl implements PATMgtDAO {
         } catch (SQLException e) {
             // TODO: handle exception
             return null;
+        }
+    }
+
+    private String getExpiryTime(int validityPeriod, String timeCreated) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Date timeCreatedObj = null;
+        try {
+            timeCreatedObj = formatter.parse(timeCreated);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(timeCreatedObj);
+            calendar.add(Calendar.SECOND, validityPeriod);
+
+            return formatter.format(calendar.getTime());
+        } catch (ParseException e) {
+            // TODO: handle error
+            throw new RuntimeException(e);
         }
     }
 

@@ -143,8 +143,8 @@ components:
         - token_id
         - alias
         - description
-        - validity_period
         - time_created
+        - expiry_time
         - scope
       properties:
         token_id:
@@ -153,11 +153,12 @@ components:
           $ref: '#/components/schemas/Alias'
         description:
           $ref: '#/components/schemas/Description'
-        validity_period:
-          $ref: '#/components/schemas/ValidityPeriod'
         time_created:
           type: string
           example: "2022-03-22 03:28:41"
+        expiry_time:
+          type: string
+          example: "2022-03-22 03:58:41"
         scope:
           $ref: '#/components/schemas/Scope'
     PATCreationResponse:

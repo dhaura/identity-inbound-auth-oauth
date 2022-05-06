@@ -79,18 +79,21 @@ public class TokenManagementApiService {
         tokenMetadataRetrievalResponse.setTokenId(tokenMetadataDTO.getTokenId());
         tokenMetadataRetrievalResponse.setAlias(tokenMetadataDTO.getAlias());
         tokenMetadataRetrievalResponse.setDescription(tokenMetadataDTO.getDescription());
-        tokenMetadataRetrievalResponse.setValidityPeriod(tokenMetadataDTO.getValidityPeriod());
         tokenMetadataRetrievalResponse.setTimeCreated(tokenMetadataDTO.getTimeCreated());
+        tokenMetadataRetrievalResponse.setExpiryTime(tokenMetadataDTO.getExpiryTime());
         tokenMetadataRetrievalResponse.setScope(tokenMetadataDTO.getScope());
 
         return tokenMetadataRetrievalResponse;
     }
 
-    private List<TokenMetadataRetrievalResponse> getTokensMetadataRetrievalResponse(List<TokenMetadataDTO> tokenMetadataDTOList) {
+    private List<TokenMetadataRetrievalResponse> getTokensMetadataRetrievalResponse
+            (List<TokenMetadataDTO> tokenMetadataDTOList) {
+
         List<TokenMetadataRetrievalResponse> tokenMetadataRetrievalResponseList = new ArrayList<>();
 
         for (TokenMetadataDTO tokenMetadataDTO : tokenMetadataDTOList) {
-            TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse = getTokenMetadataRetrievalResponse(tokenMetadataDTO);
+            TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse
+                    = getTokenMetadataRetrievalResponse(tokenMetadataDTO);
 
             tokenMetadataRetrievalResponseList.add(tokenMetadataRetrievalResponse);
         }

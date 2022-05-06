@@ -15,8 +15,8 @@ public class TokenMetadataDTO {
     private String tokenId;
     private String alias;
     private String description;
-    private Integer validityPeriod;
     private String timeCreated;
+    private String expiryTime;
     private List<String> scope;
 
     public String getTokenId() {
@@ -43,20 +43,20 @@ public class TokenMetadataDTO {
         this.description = description;
     }
 
-    public Integer getValidityPeriod() {
-        return validityPeriod;
-    }
-
-    public void setValidityPeriod(Integer validityPeriod) {
-        this.validityPeriod = validityPeriod;
-    }
-
     public String getTimeCreated() {
         return timeCreated;
     }
 
     public void setTimeCreated(String timeCreated) {
         this.timeCreated = timeCreated;
+    }
+
+    public String getExpiryTime() {
+        return expiryTime;
+    }
+
+    public void setExpiryTime(String expiryTime) {
+        this.expiryTime = expiryTime;
     }
 
     public List<String> getScope() {

@@ -37,8 +37,8 @@ public class TokenMetadataRetrievalResponse  {
     private String tokenId;
     private String alias;
     private String description;
-    private Integer validityPeriod;
     private String timeCreated;
+    private String expiryTime;
     private List<String> scope = new ArrayList<>();
 
 
@@ -104,26 +104,6 @@ public class TokenMetadataRetrievalResponse  {
 
     /**
     **/
-    public TokenMetadataRetrievalResponse validityPeriod(Integer validityPeriod) {
-
-        this.validityPeriod = validityPeriod;
-        return this;
-    }
-    
-    @ApiModelProperty(example = "2000", required = true, value = "")
-    @JsonProperty("validity_period")
-    @Valid
-    @NotNull(message = "Property validityPeriod cannot be null.")
-
-    public Integer getValidityPeriod() {
-        return validityPeriod;
-    }
-    public void setValidityPeriod(Integer validityPeriod) {
-        this.validityPeriod = validityPeriod;
-    }
-
-    /**
-    **/
     public TokenMetadataRetrievalResponse timeCreated(String timeCreated) {
 
         this.timeCreated = timeCreated;
@@ -140,6 +120,26 @@ public class TokenMetadataRetrievalResponse  {
     }
     public void setTimeCreated(String timeCreated) {
         this.timeCreated = timeCreated;
+    }
+
+    /**
+    **/
+    public TokenMetadataRetrievalResponse expiryTime(String expiryTime) {
+
+        this.expiryTime = expiryTime;
+        return this;
+    }
+    
+    @ApiModelProperty(example = "2022-03-22 03:58:41", required = true, value = "")
+    @JsonProperty("expiry_time")
+    @Valid
+    @NotNull(message = "Property expiryTime cannot be null.")
+
+    public String getExpiryTime() {
+        return expiryTime;
+    }
+    public void setExpiryTime(String expiryTime) {
+        this.expiryTime = expiryTime;
     }
 
     /**
@@ -182,14 +182,14 @@ public class TokenMetadataRetrievalResponse  {
         return Objects.equals(this.tokenId, tokenMetadataRetrievalResponse.tokenId) &&
             Objects.equals(this.alias, tokenMetadataRetrievalResponse.alias) &&
             Objects.equals(this.description, tokenMetadataRetrievalResponse.description) &&
-            Objects.equals(this.validityPeriod, tokenMetadataRetrievalResponse.validityPeriod) &&
             Objects.equals(this.timeCreated, tokenMetadataRetrievalResponse.timeCreated) &&
+            Objects.equals(this.expiryTime, tokenMetadataRetrievalResponse.expiryTime) &&
             Objects.equals(this.scope, tokenMetadataRetrievalResponse.scope);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tokenId, alias, description, validityPeriod, timeCreated, scope);
+        return Objects.hash(tokenId, alias, description, timeCreated, expiryTime, scope);
     }
 
     @Override
@@ -201,8 +201,8 @@ public class TokenMetadataRetrievalResponse  {
         sb.append("    tokenId: ").append(toIndentedString(tokenId)).append("\n");
         sb.append("    alias: ").append(toIndentedString(alias)).append("\n");
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
-        sb.append("    validityPeriod: ").append(toIndentedString(validityPeriod)).append("\n");
         sb.append("    timeCreated: ").append(toIndentedString(timeCreated)).append("\n");
+        sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
         sb.append("    scope: ").append(toIndentedString(scope)).append("\n");
         sb.append("}");
         return sb.toString();
