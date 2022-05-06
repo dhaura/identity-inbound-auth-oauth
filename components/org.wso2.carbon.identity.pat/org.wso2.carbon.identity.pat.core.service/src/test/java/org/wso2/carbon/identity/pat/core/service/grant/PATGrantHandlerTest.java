@@ -55,9 +55,14 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
     private RealmService realmService;
     private UserRealm userRealm;
     private AbstractUserStoreManager userStoreManager;
+    private PATDAOFactory patdaoFactory;
+    private  PATMgtDAOImpl patMgtDAO;
+    private OAuthTokenPersistenceFactory oAuthTokenPersistenceFactory;
 
     private static final String[] scopes = {"internal_application_mgt_view", "internal_claim_meta_create"};
     private static final String USER_ID = "76d26bbe-9010-4fe2-bd76-a559cef192aa";
+    private static final String CLIENT_ID = "JM6vFAVXAAHA1Jwhwnv7n4cNIP0a";
+    private static final String TENANT_DOMAIN = "carbon.super";
     private static final String ACCESS_TOKEN = "4a34bf6d-783a-338f-900e-2d9e13c47526";
     private static final String ALIAS = "Test Alias";
     private static final String DESCRIPTION = "Test Description";
@@ -73,6 +78,13 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         realmService = mock(RealmService.class);
         userRealm = mock(UserRealm.class);
         userStoreManager = mock(AbstractUserStoreManager.class);
+
+        mockStatic(OAuthTokenPersistenceFactory.class);
+        oAuthTokenPersistenceFactory = mock(OAuthTokenPersistenceFactory.class);
+
+        mockStatic(PATDAOFactory.class);
+        patdaoFactory = mock(PATDAOFactory.class);
+        patMgtDAO = mock(PATMgtDAOImpl.class);
     }
 
     @Test
@@ -92,7 +104,7 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         parameters[0] = new RequestParameter(PATConstants.USER_ID, USER_ID);
 
         when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()).thenReturn(parameters);
-        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getTenantDomain()).thenReturn("carbon.super");
+        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getTenantDomain()).thenReturn(TENANT_DOMAIN);
 
         mockStatic(IdentityTenantUtil.class);
         when(IdentityTenantUtil.getTenantId(anyString())).thenReturn(-1234);
@@ -127,7 +139,7 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()).thenReturn(parameters);
 
         when(oAuth2AccessTokenReqDTO.getGrantType()).thenReturn("pat");
-        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId()).thenReturn("JM6vFAVXAAHA1Jwhwnv7n4cNIP0a");
+        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId()).thenReturn(CLIENT_ID);
 
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setUserId(USER_ID);
@@ -147,8 +159,8 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         OAuthAppDO oAuthAppBean = mock(OAuthAppDO.class);
         when(oAuthAppBean.getUserAccessTokenExpiryTime()).thenReturn(3600L);
         when(tokReqMsgCtx.getValidityPeriod()).thenReturn(2000L);
-        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getTenantDomain()).thenReturn("carbon.super");
-        when(oAuth2AccessTokenReqDTO.getClientId()).thenReturn("JM6vFAVXAAHA1Jwhwnv7n4cNIP0a");
+        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getTenantDomain()).thenReturn(TENANT_DOMAIN);
+        when(oAuth2AccessTokenReqDTO.getClientId()).thenReturn(CLIENT_ID);
 
         when(tokReqMsgCtx.getScope()).thenReturn(scopes);
         when(OAuth2Util.getTenantId(anyString())).thenReturn(-1234);
@@ -160,8 +172,6 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         when(oAuthAppBean.getRefreshTokenExpiryTime()).thenReturn(8400L);
         when(oauthTokenIssuer.refreshToken(tokReqMsgCtx)).thenReturn("aa4f7279-3a8d-34db-a724-fb096d69af0e");
 
-        mockStatic(OAuthTokenPersistenceFactory.class);
-        OAuthTokenPersistenceFactory oAuthTokenPersistenceFactory = mock(OAuthTokenPersistenceFactory.class);
         when(OAuthTokenPersistenceFactory.getInstance()).thenReturn(oAuthTokenPersistenceFactory);
         AccessTokenDAO accessTokenDAO = mock(AccessTokenDAOImpl.class);
         when(OAuthTokenPersistenceFactory.getInstance().getAccessTokenDAO()).thenReturn(accessTokenDAO);
@@ -169,9 +179,6 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
                 .insertAccessToken(ACCESS_TOKEN, oAuth2AccessTokenReqDTO.getClientId(), mock(AccessTokenDO.class), null, null)).thenReturn(true);
         when(OAuth2Util.getAppInformationByClientId(anyString())).thenReturn(oAuthAppBean);
 
-        mockStatic(PATDAOFactory.class);
-        PATDAOFactory patdaoFactory = mock(PATDAOFactory.class);
-        PATMgtDAOImpl patMgtDAO = mock(PATMgtDAOImpl.class);
         when(PATDAOFactory.getInstance()).thenReturn(patdaoFactory);
         when(PATDAOFactory.getInstance().getPATMgtDAO()).thenReturn(patMgtDAO);
         doNothing().when(patMgtDAO).insertPATData(anyString(), eq(ALIAS), eq(DESCRIPTION));
