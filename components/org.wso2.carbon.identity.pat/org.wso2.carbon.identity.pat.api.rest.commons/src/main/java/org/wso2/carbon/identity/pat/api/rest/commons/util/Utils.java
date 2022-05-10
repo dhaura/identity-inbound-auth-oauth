@@ -10,7 +10,6 @@
 package org.wso2.carbon.identity.pat.api.rest.commons.util;
 
 import org.apache.log4j.MDC;
-import org.wso2.carbon.identity.pat.api.rest.commons.Constants;
 
 import java.util.UUID;
 

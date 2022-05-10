@@ -100,7 +100,7 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
     public void testValidateGrant() throws Exception {
         when(tokReqMsgCtx.getOauth2AccessTokenReqDTO()).thenReturn(oAuth2AccessTokenReqDTO);
 
-        RequestParameter[] parameters = new RequestParameter[4];
+        RequestParameter[] parameters = new RequestParameter[1];
         parameters[0] = new RequestParameter(PATConstants.USER_ID, USER_ID);
 
         when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()).thenReturn(parameters);
@@ -125,6 +125,55 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         PATGrantHandler patGrantHandler = new PATGrantHandler();
         boolean actual = patGrantHandler.validateGrant(tokReqMsgCtx);
         Assert.assertTrue(actual, "PAT grant validation should be successful");
+    }
+
+    @Test
+    public void testIncorrectValidateGrant() throws Exception {
+        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO()).thenReturn(oAuth2AccessTokenReqDTO);
+
+        RequestParameter[] parameters = new RequestParameter[1];
+        parameters[0] = new RequestParameter(PATConstants.USER_ID, USER_ID);
+
+        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters()).thenReturn(parameters);
+        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getTenantDomain()).thenReturn(null);
+
+        // check when tenant domain is unavailable
+        PATGrantHandler patGrantHandler = new PATGrantHandler();
+        boolean actual1 = patGrantHandler.validateGrant(tokReqMsgCtx);
+        Assert.assertFalse(actual1, "PAT grant validation should be unsuccessful");
+
+        // remove user id from request parameters
+        parameters[0] = new RequestParameter("Test", "Test");
+
+        // check when both user id and tenant domain are unavailable
+        boolean actual2 = patGrantHandler.validateGrant(tokReqMsgCtx);
+        Assert.assertFalse(actual2, "PAT grant validation should be unsuccessful");
+
+        // add tenant domain to the request parameters
+        when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getTenantDomain()).thenReturn(TENANT_DOMAIN);
+
+        // check when user id is unavailable
+        boolean actual3 = patGrantHandler.validateGrant(tokReqMsgCtx);
+        Assert.assertFalse(actual3, "PAT grant validation should be unsuccessful");
+
+        mockStatic(IdentityTenantUtil.class);
+        when(IdentityTenantUtil.getTenantId(anyString())).thenReturn(-1234);
+
+        mockStatic(PATUtil.class);
+        when(PATUtil.getRealmService()).thenReturn(realmService);
+        when(realmService.getTenantUserRealm(anyInt())).thenReturn(userRealm);
+        when(realmService.getTenantUserRealm(anyInt()).getUserStoreManager()).thenReturn(null);
+
+        // check when user store manager is unavailable
+        boolean actual4 = patGrantHandler.validateGrant(tokReqMsgCtx);
+        Assert.assertFalse(actual4, "PAT grant validation should be unsuccessful");
+
+        when(realmService.getTenantUserRealm(anyInt()).getUserStoreManager()).thenReturn(null);
+        when(PATUtil.getUser(USER_ID, userStoreManager)).thenReturn(null);
+
+        // check when user is unavailable (user id is incorrect)
+        boolean actual5 = patGrantHandler.validateGrant(tokReqMsgCtx);
+        Assert.assertFalse(actual5, "PAT grant validation should be unsuccessful");
     }
 
     @Test

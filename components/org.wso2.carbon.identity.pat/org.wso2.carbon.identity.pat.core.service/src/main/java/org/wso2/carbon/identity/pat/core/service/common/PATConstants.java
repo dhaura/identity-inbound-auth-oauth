@@ -22,5 +22,55 @@ public class PATConstants {
     public static final String ACCESS_TOKEN = "access_token";
     public static final String INBOUND_AUTH_KEY = "inbound_auth_key";
     public static final String USER_ID = "user_id";
+    public static final String CLIENT_ID = "client_id";
 
+    // constants used for sending an email
+    public static final String EMAIL = "email";
+    public static final String SEND_TO = "send-to";
+    public static final String TEMPLATE_TYPE = "TEMPLATE_TYPE";
+    public static final String ASGARDEO_PAT_CREATION_EMAIL_TEMPLATE = "AsgardeoPATCreation";
+    public static final String ASGARDEO_PAT_REVOCATION_EMAIL_TEMPLATE = "AsgardeoPATRevocation";
+    public static final String EMAIL_CHANNEL = "EMAIL";
+
+    /**
+     * Enum for PAT management related errors.
+     * Error Code - code to identify the error.
+     * Error Message - What went wrong.
+     */
+    public enum ErrorMessage {
+
+        ERROR_CODE_EMPTY_ALIAS("IPM-95001", "Alias parameter cannot be empty."),
+        ERROR_CODE_EMPTY_DESCRIPTION("IPM-95002",
+                "If Description parameter available then it cannot be empty."),
+        ERROR_CODE_INVALID_VALIDITY_PERIOD("IPM-95003",
+                "Validity period cannot be empty and should contain a positive long value."),
+        ERROR_CODE_SCOPES_NOT_PRESENT("IPM-95004", "At least one scope should be present."),
+        ERROR_CODE_EMPTY_CLIENT_ID("IPM-95005", "Client ID parameter cannot be empty.");
+
+
+        private final String code;
+        private final String message;
+
+        ErrorMessage(String code, String message) {
+
+            this.code = code;
+            this.message = message;
+        }
+
+        public String getCode() {
+
+            return code;
+        }
+
+        public String getMessage() {
+
+            return message;
+        }
+
+        @Override
+        public String toString() {
+
+            return code + " | " + message;
+        }
+    }
 }

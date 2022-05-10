@@ -47,12 +47,8 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
         String alias = getValueFromRequestParameters(parameters, PATConstants.ALIAS);
         String description = getValueFromRequestParameters(parameters, PATConstants.DESCRIPTION);
 
-        if (StringUtils.isNotBlank(alias) && StringUtils.isNotBlank(description)) {
-            PATDAOFactory.getInstance().getPATMgtDAO()
+        PATDAOFactory.getInstance().getPATMgtDAO()
                     .insertPATData(responseDTO.getTokenId(), alias, description);
-        } else {
-            log.info("Alias or Description is not provided for the PAT.");
-        }
 
         return responseDTO;
     }
@@ -143,6 +139,7 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
         int tenantId = getTenantId(tenantDomain);
         RealmService realmService = PATUtil.getRealmService();
         AbstractUserStoreManager userStoreManager;
+
         try {
             userStoreManager
                     = (AbstractUserStoreManager) realmService.getTenantUserRealm(tenantId).getUserStoreManager();

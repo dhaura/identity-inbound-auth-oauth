@@ -26,7 +26,7 @@ import javax.ws.rs.ext.ExceptionMapper;
  */
 public class JsonProcessingExceptionMapper implements ExceptionMapper<JsonProcessingException> {
 
-    private static final String ERROR_CODE = "ELM-65000";
+    private static final String ERROR_CODE = "IPM-95000";
     private static final String ERROR_MESSAGE = "Invalid Request";
     private static final String ERROR_DESCRIPTION = "Provided request body content is not in the expected format";
     private static final Log log = LogFactory.getLog(JsonProcessingExceptionMapper.class);

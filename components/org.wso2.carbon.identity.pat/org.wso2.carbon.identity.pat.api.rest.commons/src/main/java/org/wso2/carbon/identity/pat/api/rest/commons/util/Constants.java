@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-package org.wso2.carbon.identity.pat.api.rest.commons;
+package org.wso2.carbon.identity.pat.api.rest.commons.util;
 
 /**
  * Constants to be used in Enterprise login management API.
@@ -25,29 +25,22 @@ public class Constants {
     public enum ErrorMessages {
 
         ERROR_COMMON_SERVER_ERROR(
-                "66001",
+                "96001",
                 "Unable to complete operation.",
                 "Error occurred while performing operation."),
-        ERROR_UNABLE_TO_ADD_CONFIG(
-                "66002",
-                "Unable to add enterprise login configurations.",
-                "Error occurred while trying to add enterprise login management configurations for %s"),
-        ERROR_UNABLE_TO_GET_CONFIGS(
-                "66003",
-                "Unable to retrieve enterprise login configurations.",
-                "Error occurred while trying to retrieve enterprise login management configurations for %s"),
-        ERROR_UNABLE_TO_DELETE_CONFIGS(
-                "66004",
+        ERROR_UNABLE_TO_CREATE_PAT(
+                "96002",
+                "Unable to create personal access token.",
+                "Error occurred while trying to create a personal access token for user: %s"),
+        ERROR_UNABLE_TO_GET_PAT_METADATA(
+                "96003",
+                "Unable to retrieve personal access token metadata.",
+                "Error occurred while trying to retrieve personal access token metadata for user: %s"),
+        ERROR_UNABLE_TO_REVOKE_PAT(
+                "96004",
                 "Unable to delete enterprise login configurations.",
-                "Error occurred while trying to delete enterprise login management configurations for %s"),
-        ERROR_UNABLE_TO_UPDATE_CONFIGS(
-                "66005",
-                "Unable to update enterprise login configurations.",
-                "Error occurred while trying to update enterprise login management configurations for %s"),
-        ERROR_NO_CONFIGS_TO_UPDATE(
-                "66007",
-                "No enterprise login configurations found.",
-                "No enterprise login configurations found for %s");
+                "Error occurred while trying to delete enterprise login management configurations for %s");
+
 
 
         private final String code;

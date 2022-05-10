@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.*;
+import org.wso2.carbon.identity.event.services.IdentityEventService;
 import org.wso2.carbon.identity.oauth.common.token.bindings.TokenBinderInfo;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.pat.core.service.PATManagementService;
@@ -69,6 +70,28 @@ public class PATServiceComponent {
             log.debug("Unsetting the OAuth2 Service");
         }
         PATServiceComponentHolder.getInstance().setOAuth2Service(null);
+    }
+
+    @Reference(
+            name = "IdentityEventService",
+            service = org.wso2.carbon.identity.event.services.IdentityEventService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetIdentityEventService")
+    protected void setIdentityEventService(IdentityEventService identityEventService) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Setting IdentityEventService to UserInviteManagementService service.");
+        }
+        PATServiceComponentHolder.setIdentityEventService(identityEventService);
+    }
+
+    protected void unsetIdentityEventService(IdentityEventService identityEventService) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Unsetting IdentityEventService from UserInviteManagementService service.");
+        }
+        PATServiceComponentHolder.setIdentityEventService(null);
     }
 
 }

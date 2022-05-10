@@ -9,25 +9,42 @@
 
 package org.wso2.carbon.identity.pat.api.rest.service.v1.core;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.ServiceURLBuilder;
 import org.wso2.carbon.identity.core.URLBuilderException;
 import org.wso2.carbon.identity.pat.api.rest.commons.PATApiMgtDataHolder;
+import org.wso2.carbon.identity.pat.api.rest.commons.exceptions.APIError;
+import org.wso2.carbon.identity.pat.api.rest.commons.exceptions.ErrorResponse;
+import org.wso2.carbon.identity.pat.api.rest.commons.util.Constants;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationRequest;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationResponse;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.TokenMetadataRetrievalResponse;
+import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientException;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATException;
 import org.wso2.carbon.identity.pat.core.service.model.PATCreationReqDTO;
 import org.wso2.carbon.identity.pat.core.service.model.PATCreationRespDTO;
 import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
 
+import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TokenManagementApiService {
 
+    private static final Log LOG = LogFactory.getLog(TokenManagementApiService.class);
+
     public PATCreationResponse issuePAT(PATCreationRequest patCreationRequest) {
         PATCreationReqDTO patCreationReqDTO = getPATCreationDataObject(patCreationRequest);
-        return getPATCreationResponse(PATApiMgtDataHolder.getPatManagementService().issuePAT(patCreationReqDTO));
+        try {
+            return getPATCreationResponse(PATApiMgtDataHolder.getPatManagementService().issuePAT(patCreationReqDTO));
+        } catch (PATException e) {
+            throw handleException(e, Constants.ErrorMessages.ERROR_UNABLE_TO_CREATE_PAT, PATUtil.getUserID());
+        }
     }
 
     public TokenMetadataRetrievalResponse getTokenMetadata(String tokenId) {
@@ -119,4 +136,59 @@ public class TokenManagementApiService {
         }
         return loc;
     }
+
+    private APIError handleException(PATException exception, Constants.ErrorMessages errorEnum,
+                                     String... data) {
+
+        ErrorResponse errorResponse;
+        Response.Status status;
+        if (exception instanceof PATClientException) {
+            status = Response.Status.BAD_REQUEST;
+//            if (isConflictScenario(exception.getErrorCode())) {
+//                status = Response.Status.CONFLICT;
+//            } else if (isNotFoundScenario(exception.getErrorCode())) {
+//                status = Response.Status.NOT_FOUND;
+//            }
+
+            errorResponse = getErrorBuilder(exception, errorEnum, data)
+                    .build(LOG, exception, buildErrorDescription(errorEnum.getDescription(), data), true);
+
+        } else {
+            status = Response.Status.INTERNAL_SERVER_ERROR;
+            errorResponse = getErrorBuilder(errorEnum, data).
+                    build(LOG, exception, buildErrorDescription(errorEnum.getDescription(), data),
+                            false);
+        }
+        return new APIError(status, errorResponse);
+    }
+
+    private ErrorResponse.Builder getErrorBuilder(PATException exception,
+                                                  Constants.ErrorMessages errorEnum, String... data) {
+
+        String errorCode = (StringUtils.isBlank(exception.getErrorCode())) ?
+                errorEnum.getCode() : exception.getErrorCode();
+        String description = (StringUtils.isBlank(exception.getMessage())) ?
+                errorEnum.getDescription() : exception.getMessage();
+        return new ErrorResponse.Builder()
+                .withCode(errorCode)
+                .withMessage(errorEnum.getMessage())
+                .withDescription(buildErrorDescription(description, data));
+    }
+
+    private ErrorResponse.Builder getErrorBuilder(Constants.ErrorMessages errorEnum, String... data) {
+
+        return new ErrorResponse.Builder()
+                .withCode(errorEnum.getCode())
+                .withMessage(errorEnum.getMessage())
+                .withDescription(buildErrorDescription(errorEnum.getDescription(), data));
+    }
+
+    private String buildErrorDescription(String description, String... data) {
+
+        if (ArrayUtils.isNotEmpty(data)) {
+            return String.format(description, (Object[]) data);
+        }
+        return description;
+    }
+
 }

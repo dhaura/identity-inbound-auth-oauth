@@ -67,6 +67,15 @@ public class PATUtil {
     }
 
     /**
+     * Get UserName.
+     *
+     * @return String
+     */
+    public static String getUserName() {
+        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+    }
+
+    /**
      * This method will start a super tenant flow
      */
     public static void startSuperTenantFlow() {

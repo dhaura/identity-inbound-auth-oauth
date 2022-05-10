@@ -25,8 +25,9 @@ public class PATGrantValidator extends AbstractValidator {
 
     public PATGrantValidator() {
         requiredParams.add(PATConstants.ALIAS);
-        requiredParams.add(PATConstants.DESCRIPTION);
         requiredParams.add(PATConstants.VALIDITY_PERIOD);
+        requiredParams.add(PATConstants.SCOPE);
+        requiredParams.add(PATConstants.CLIENT_ID);
     }
 
     @Override
