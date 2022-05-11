@@ -9,6 +9,9 @@
 
 package org.wso2.carbon.identity.pat.core.service.common;
 
+/**
+ * Class for constants and error messages in PAT core service.
+ */
 public class PATConstants {
 
     public static final String PAT = "pat";
@@ -47,7 +50,12 @@ public class PATConstants {
         ERROR_CODE_SCOPES_NOT_PRESENT("IPM-95004", "At least one scope should be present."),
         ERROR_CODE_EMPTY_CLIENT_ID("IPM-95005", "Client ID parameter cannot be empty."),
         ERROR_CODE_EMPTY_TOKEN_ID("IPM-95006", "Token ID path parameter cannot be empty."),
-        ERROR_CODE_INVALID_TOKEN_ID("IPM-95006", "Token ID path parameter should be valid.");
+        ERROR_CODE_INVALID_TOKEN_ID("IPM-95007", "Error occurred while creating personal access token."),
+        ERROR_CREATING_PAT("IPM-95008", "Token ID path parameter should be valid."),
+        ERROR_RETRIEVING_TOKEN_METADATA("IPM-95009", "Error occurred while retrieving token metadata."),
+        ERROR_RETRIEVING_TOKEN_SCOPES("IPM-95010", "Error occurred while retrieving token scopes."),
+        ERROR_RETRIEVING_CLIENT_ID("IPM-95011", "Error occurred while retrieving client ID."),
+        ERROR_RETRIEVING_PAT("IPM-95012", "Error occurred while retrieving personal access token.");
 
         private final String code;
         private final String message;

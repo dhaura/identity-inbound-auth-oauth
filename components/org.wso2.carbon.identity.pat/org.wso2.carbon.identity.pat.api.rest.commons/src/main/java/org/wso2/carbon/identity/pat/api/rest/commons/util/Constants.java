@@ -10,7 +10,7 @@
 package org.wso2.carbon.identity.pat.api.rest.commons.util;
 
 /**
- * Constants to be used in Enterprise login management API.
+ * Constants to be used in PAT management API.
  */
 public class Constants {
 
@@ -38,8 +38,8 @@ public class Constants {
                 "Error occurred while trying to retrieve personal access token metadata for user: %s"),
         ERROR_UNABLE_TO_REVOKE_PAT(
                 "96004",
-                "Unable to delete enterprise login configurations.",
-                "Error occurred while trying to delete enterprise login management configurations for %s");
+                "Unable to revoke the personal access token.",
+                "Error occurred while trying to revoke the personal access token for user: %s");
 
 
 

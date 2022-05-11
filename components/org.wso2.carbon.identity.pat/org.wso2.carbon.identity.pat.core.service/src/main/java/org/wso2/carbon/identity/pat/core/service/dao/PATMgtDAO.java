@@ -9,7 +9,7 @@
 
 package org.wso2.carbon.identity.pat.core.service.dao;
 
-import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientException;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATException;
 import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
 
 import java.util.List;
@@ -20,10 +20,10 @@ import java.util.List;
 public interface PATMgtDAO {
 
     public void insertPATData(String tokenID, String alias, String description);
-    public TokenMetadataDTO getTokenMetadata(String tokenID, String userID) throws PATClientException;
-    public List<TokenMetadataDTO> getTokensMetadata(String userID);
-    public List<String> getTokenScopes(String tokenID);
-    public String getAccessToken(String tokenID);
-    public String getClientIDFromTokenID(String tokenID);
+    public TokenMetadataDTO getTokenMetadata(String tokenID, String userID) throws PATException;
+    public List<TokenMetadataDTO> getTokensMetadata(String userID) throws PATException;
+    public List<String> getTokenScopes(String tokenID) throws PATException;
+    public String getAccessToken(String tokenID) throws PATException;
+    public String getClientIDFromTokenID(String tokenID) throws PATException;
 
 }

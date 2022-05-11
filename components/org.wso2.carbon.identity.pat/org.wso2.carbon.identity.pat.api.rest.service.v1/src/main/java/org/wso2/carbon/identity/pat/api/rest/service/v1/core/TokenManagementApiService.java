@@ -22,6 +22,7 @@ import org.wso2.carbon.identity.pat.api.rest.commons.util.Constants;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationRequest;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationResponse;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATMetadata;
+import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
 import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientException;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATException;
@@ -29,21 +30,29 @@ import org.wso2.carbon.identity.pat.core.service.model.PATCreationReqDTO;
 import org.wso2.carbon.identity.pat.core.service.model.PATCreationRespDTO;
 import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
 
-import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import javax.ws.rs.core.Response;
 
 public class TokenManagementApiService {
 
     private static final Log LOG = LogFactory.getLog(TokenManagementApiService.class);
+
+    private static final List<String> CONFLICT_ERROR_SCENARIOS = Arrays.asList();
+
+    private static final List<String> NOT_FOUND_ERROR_SCENARIOS = Arrays.asList(
+
+            PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID.getCode()
+    );
 
     public PATCreationResponse issuePAT(PATCreationRequest patCreationRequest) {
         PATCreationReqDTO patCreationReqDTO = getPATCreationDataObject(patCreationRequest);
         try {
             return getPATCreationResponse(PATApiMgtDataHolder.getPatManagementService().issuePAT(patCreationReqDTO));
         } catch (PATException e) {
-            throw handleException(e, Constants.ErrorMessages.ERROR_UNABLE_TO_CREATE_PAT, PATUtil.getUserID());
+            throw handleException(e, Constants.ErrorMessages.ERROR_UNABLE_TO_CREATE_PAT, PATUtil.getUserName());
         }
     }
 
@@ -52,17 +61,18 @@ public class TokenManagementApiService {
             TokenMetadataDTO tokenMetadataDTO = PATApiMgtDataHolder.getPatManagementService().getTokenMetadata(tokenId);
             return getTokenMetadata(tokenMetadataDTO);
         } catch (PATException e) {
-            throw new RuntimeException(e);
+            throw handleException(e, Constants.ErrorMessages.ERROR_UNABLE_TO_GET_PAT_METADATA, PATUtil.getUserName());
         }
 
     }
 
     public List<PATMetadata> getTokensMetadata() {
         try {
-            List<TokenMetadataDTO> tokenMetadataDTOList = PATApiMgtDataHolder.getPatManagementService().getTokensMetadata();
+            List<TokenMetadataDTO> tokenMetadataDTOList = PATApiMgtDataHolder
+                    .getPatManagementService().getTokensMetadata();
             return getTokensMetadata(tokenMetadataDTOList);
         } catch (PATException e) {
-            throw new RuntimeException(e);
+            throw handleException(e, Constants.ErrorMessages.ERROR_UNABLE_TO_GET_PAT_METADATA, PATUtil.getUserName());
         }
     }
 
@@ -70,7 +80,7 @@ public class TokenManagementApiService {
         try {
             PATApiMgtDataHolder.getPatManagementService().revokePAT(tokenId);
         } catch (PATException e) {
-            throw new RuntimeException(e);
+            throw handleException(e, Constants.ErrorMessages.ERROR_UNABLE_TO_REVOKE_PAT, PATUtil.getUserName());
         }
     }
 
@@ -157,11 +167,11 @@ public class TokenManagementApiService {
         Response.Status status;
         if (exception instanceof PATClientException) {
             status = Response.Status.BAD_REQUEST;
-//            if (isConflictScenario(exception.getErrorCode())) {
-//                status = Response.Status.CONFLICT;
-//            } else if (isNotFoundScenario(exception.getErrorCode())) {
-//                status = Response.Status.NOT_FOUND;
-//            }
+            if (isConflictScenario(exception.getErrorCode())) {
+                status = Response.Status.CONFLICT;
+            } else if (isNotFoundScenario(exception.getErrorCode())) {
+                status = Response.Status.NOT_FOUND;
+            }
 
             errorResponse = getErrorBuilder(exception, errorEnum, data)
                     .build(LOG, exception, buildErrorDescription(errorEnum.getDescription(), data), true);
@@ -202,6 +212,16 @@ public class TokenManagementApiService {
             return String.format(description, (Object[]) data);
         }
         return description;
+    }
+
+    private boolean isConflictScenario(String errorCode) {
+
+        return !StringUtils.isBlank(errorCode) && CONFLICT_ERROR_SCENARIOS.contains(errorCode);
+    }
+
+    private boolean isNotFoundScenario(String errorCode) {
+
+        return !StringUtils.isBlank(errorCode) && NOT_FOUND_ERROR_SCENARIOS.contains(errorCode);
     }
 
 }

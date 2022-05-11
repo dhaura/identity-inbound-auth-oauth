@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.pat.core.service.dao.PATDAOFactory;
 import org.wso2.carbon.identity.pat.core.service.dao.PATMgtDAO;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientException;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATException;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATServerException;
 import org.wso2.carbon.identity.pat.core.service.internal.PATServiceComponentHolder;
 import org.wso2.carbon.identity.pat.core.service.model.PATCreationReqDTO;
 import org.wso2.carbon.identity.pat.core.service.model.PATCreationRespDTO;
@@ -41,6 +42,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+
+/**
+ * PAT management service implementation.
+ */
 public class PATManagementServiceImpl implements PATManagementService {
 
     private static final Log log = LogFactory.getLog(PATManagementServiceImpl.class);
@@ -60,8 +65,9 @@ public class PATManagementServiceImpl implements PATManagementService {
             OAuth2AccessTokenRespDTO oauth2AccessTokenResp = PATUtil.getOAuth2Service().issueAccessToken(tokenReqDTO);
 
             if (oauth2AccessTokenResp.getErrorMsg() != null) {
-                // TODO: handle error
-                return null;
+                throw new PATServerException(
+                        PATConstants.ErrorMessage.ERROR_CREATING_PAT.getCode(),
+                        oauth2AccessTokenResp.getErrorMsg());
             } else {
                 PATCreationRespDTO patCreationRespDTO =
                         getPATCreationResponse(oauth2AccessTokenResp, patCreationReqDTO);
@@ -69,12 +75,91 @@ public class PATManagementServiceImpl implements PATManagementService {
                     triggerEmail(username, patCreationRespDTO.
                             getAlias(), patCreationRespDTO.getDescription(), PATConstants.ASGARDEO_PAT_CREATION_EMAIL_TEMPLATE);
                 } catch (IdentityEventException e) {
-                    throw new RuntimeException(e);
+                    throw new PATServerException(
+                            PATConstants.ErrorMessage.ERROR_CREATING_PAT.getCode(),
+                            PATConstants.ErrorMessage.ERROR_CREATING_PAT.getMessage());
                 }
                 return patCreationRespDTO;
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
+        }
+
+    }
+
+    @Override
+    public TokenMetadataDTO getTokenMetadata(String tokenId) throws PATException {
+        String userId = PATUtil.getUserID();
+
+        if (StringUtils.isNotBlank(tokenId)) {
+            PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
+            TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId, userId);
+            tokenMetadataDTO.setScope(patMgtDAO.getTokenScopes(tokenId));
+
+            return tokenMetadataDTO;
+        } else {
+            throw new PATClientException(
+                    PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID.getCode(),
+                    PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID.getMessage());
+        }
+    }
+
+    @Override
+    public List<TokenMetadataDTO> getTokensMetadata() throws PATException {
+
+        String userId = PATUtil.getUserID();
+
+        PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
+        List<TokenMetadataDTO> tokenMetadataDTOList = patMgtDAO.getTokensMetadata(userId);
+
+        return tokenMetadataDTOList;
+    }
+
+    @Override
+    public void revokePAT(String tokenId) throws PATException {
+        String userId = PATUtil.getUserID();
+        String username = PATUtil.getUserName();
+
+        if (StringUtils.isNotBlank(tokenId)) {
+            PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
+            TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId, userId);
+
+            if (tokenMetadataDTO != null) {
+                try {
+                    PATUtil.startSuperTenantFlow();
+
+                    String accessToken = patMgtDAO.getAccessToken(tokenId);
+                    String clientID = patMgtDAO.getClientIDFromTokenID(tokenId);
+
+                    OAuthRevocationRequestDTO revokeRequest = buildOAuthRevocationRequest(accessToken, clientID);
+                    OAuthRevocationResponseDTO oauthRevokeResp = PATUtil.getOAuth2Service()
+                            .revokeTokenByOAuthClient(revokeRequest);
+
+                    if (oauthRevokeResp.getErrorMsg() != null) {
+                        throw new PATServerException(
+                                PATConstants.ErrorMessage.ERROR_CREATING_PAT.getCode(),
+                                oauthRevokeResp.getErrorMsg());
+                    } else {
+                        triggerEmail(username, tokenMetadataDTO.getAlias(), tokenMetadataDTO.getDescription(),
+                                PATConstants.ASGARDEO_PAT_REVOCATION_EMAIL_TEMPLATE);
+                    }
+
+                } catch (IdentityEventException e) {
+                    throw new PATServerException(
+                            PATConstants.ErrorMessage.ERROR_CREATING_PAT.getCode(),
+                            PATConstants.ErrorMessage.ERROR_CREATING_PAT.getMessage());
+                } finally {
+                    PrivilegedCarbonContext.endTenantFlow();
+                }
+            } else {
+                throw new PATClientException(
+                        PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID.getCode(),
+                        PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID.getMessage());
+            }
+        } else {
+            throw new PATClientException(
+                    PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID.getCode(),
+                    PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID.getMessage());
         }
 
     }
@@ -107,72 +192,6 @@ public class PATManagementServiceImpl implements PATManagementService {
                     PATConstants.ErrorMessage.ERROR_CODE_EMPTY_CLIENT_ID.getCode(),
                     PATConstants.ErrorMessage.ERROR_CODE_EMPTY_CLIENT_ID.getMessage());
         }
-    }
-
-    @Override
-    public TokenMetadataDTO getTokenMetadata(String tokenId) throws PATException {
-        String userId = PATUtil.getUserID();
-
-        if (StringUtils.isNotBlank(tokenId)) {
-            PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
-            TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId, userId);
-            tokenMetadataDTO.setScope(patMgtDAO.getTokenScopes(tokenId));
-
-            return tokenMetadataDTO;
-        } else {
-            throw new PATClientException(
-                    PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID.getCode(),
-                    PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID.getMessage());
-        }
-    }
-
-    @Override
-    public List<TokenMetadataDTO> getTokensMetadata() {
-
-        String userId = PATUtil.getUserID();
-
-        PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
-        List<TokenMetadataDTO> tokenMetadataDTOList = patMgtDAO.getTokensMetadata(userId);
-
-        return tokenMetadataDTOList;
-    }
-
-    @Override
-    public void revokePAT(String tokenId) throws PATException {
-        String userId = PATUtil.getUserID();
-        String username = PATUtil.getUserName();
-
-        PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
-        TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId, userId);
-
-        if (tokenMetadataDTO != null) {
-            try {
-                PATUtil.startSuperTenantFlow();
-
-                String accessToken = patMgtDAO.getAccessToken(tokenId);
-                String clientID = patMgtDAO.getClientIDFromTokenID(tokenId);
-
-                OAuthRevocationRequestDTO revokeRequest = buildOAuthRevocationRequest(accessToken, clientID);
-                OAuthRevocationResponseDTO oauthRevokeResp = PATUtil.getOAuth2Service()
-                        .revokeTokenByOAuthClient(revokeRequest);
-
-                if (oauthRevokeResp.getErrorMsg() != null) {
-                    // TODO: handle error
-                } else {
-                    triggerEmail(username, tokenMetadataDTO.getAlias(), tokenMetadataDTO.getDescription(),
-                            PATConstants.ASGARDEO_PAT_REVOCATION_EMAIL_TEMPLATE);
-                }
-
-            } catch (IdentityEventException e) {
-                // TODO: 5/10/2022 handle error
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
-        } else {
-            // TODO: handle error
-        }
-
-
     }
 
     private OAuth2AccessTokenReqDTO buildAccessTokenReqDTO(PATCreationReqDTO patCreationReqDTO, String userId) {
@@ -246,7 +265,6 @@ public class PATManagementServiceImpl implements PATManagementService {
             throws IdentityEventException {
 
         // TODO: 5/10/2022 Try again the email flow with username
-        // TODO: 5/10/2022 try out the new api def
 
         HashMap<String, Object> properties = new HashMap<>();
         String encodedEmail;
