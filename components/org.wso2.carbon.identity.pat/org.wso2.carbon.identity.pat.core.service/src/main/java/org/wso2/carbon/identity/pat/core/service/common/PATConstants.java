@@ -45,8 +45,9 @@ public class PATConstants {
         ERROR_CODE_INVALID_VALIDITY_PERIOD("IPM-95003",
                 "Validity period cannot be empty and should contain a positive long value."),
         ERROR_CODE_SCOPES_NOT_PRESENT("IPM-95004", "At least one scope should be present."),
-        ERROR_CODE_EMPTY_CLIENT_ID("IPM-95005", "Client ID parameter cannot be empty.");
-
+        ERROR_CODE_EMPTY_CLIENT_ID("IPM-95005", "Client ID parameter cannot be empty."),
+        ERROR_CODE_EMPTY_TOKEN_ID("IPM-95006", "Token ID path parameter cannot be empty."),
+        ERROR_CODE_INVALID_TOKEN_ID("IPM-95006", "Token ID path parameter should be valid.");
 
         private final String code;
         private final String message;

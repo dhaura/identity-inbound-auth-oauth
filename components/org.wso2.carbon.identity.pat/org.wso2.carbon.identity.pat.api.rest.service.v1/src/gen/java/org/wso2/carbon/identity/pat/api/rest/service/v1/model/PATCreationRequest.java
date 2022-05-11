@@ -69,11 +69,9 @@ public class PATCreationRequest  {
         return this;
     }
     
-    @ApiModelProperty(example = "This is a description for Sample Alias", required = true, value = "")
+    @ApiModelProperty(example = "This is a description for Sample Alias", value = "")
     @JsonProperty("description")
     @Valid
-    @NotNull(message = "Property description cannot be null.")
-
     public String getDescription() {
         return description;
     }
@@ -90,7 +88,7 @@ public class PATCreationRequest  {
     }
     
     @ApiModelProperty(example = "2000", required = true, value = "")
-    @JsonProperty("validity_period")
+    @JsonProperty("validityPeriod")
     @Valid
     @NotNull(message = "Property validityPeriod cannot be null.")
 
@@ -135,7 +133,7 @@ public class PATCreationRequest  {
     }
     
     @ApiModelProperty(example = "JM6vFAVXAAHA1Jwhwnv7n4cNIP0a", required = true, value = "")
-    @JsonProperty("client_id")
+    @JsonProperty("clientId")
     @Valid
     @NotNull(message = "Property clientId cannot be null.")
 

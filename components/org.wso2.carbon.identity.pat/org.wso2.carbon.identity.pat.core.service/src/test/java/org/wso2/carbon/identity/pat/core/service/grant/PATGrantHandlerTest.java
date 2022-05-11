@@ -56,7 +56,7 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
     private UserRealm userRealm;
     private AbstractUserStoreManager userStoreManager;
     private PATDAOFactory patdaoFactory;
-    private  PATMgtDAOImpl patMgtDAO;
+    private PATMgtDAOImpl patMgtDAO;
     private OAuthTokenPersistenceFactory oAuthTokenPersistenceFactory;
 
     private static final String[] scopes = {"internal_application_mgt_view", "internal_claim_meta_create"};
@@ -225,7 +225,8 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         AccessTokenDAO accessTokenDAO = mock(AccessTokenDAOImpl.class);
         when(OAuthTokenPersistenceFactory.getInstance().getAccessTokenDAO()).thenReturn(accessTokenDAO);
         when(OAuthTokenPersistenceFactory.getInstance().getAccessTokenDAO()
-                .insertAccessToken(ACCESS_TOKEN, oAuth2AccessTokenReqDTO.getClientId(), mock(AccessTokenDO.class), null, null)).thenReturn(true);
+                .insertAccessToken(ACCESS_TOKEN, oAuth2AccessTokenReqDTO.getClientId(), mock(AccessTokenDO.class),
+                        null, null)).thenReturn(true);
         when(OAuth2Util.getAppInformationByClientId(anyString())).thenReturn(oAuthAppBean);
 
         when(PATDAOFactory.getInstance()).thenReturn(patdaoFactory);

@@ -25,29 +25,30 @@ import org.wso2.carbon.identity.pat.api.rest.service.v1.model.*;
 import java.util.List;
 import javax.ws.rs.core.Response;
 
-public class TokensApiServiceImpl implements TokensApiService {
+public class MeApiServiceImpl implements MeApiService {
 
     @Autowired
     private TokenManagementApiService tokenManagementApiService;
 
     @Override
-    public Response tokensGet() {
+    public Response meTokensGet() {
 
         // do some magic!
         return Response.ok().entity(tokenManagementApiService.getTokensMetadata()).build();
     }
 
     @Override
-    public Response tokensPost(PATCreationRequest paTCreationRequest) {
+    public Response meTokensPost(PATCreationRequest paTCreationRequest) {
+
         PATCreationResponse patCreationResponse = tokenManagementApiService.issuePAT(paTCreationRequest);
-        String tokenId = patCreationResponse.getTokenId();
+        String tokenId = patCreationResponse.getId();
 
         // do some magic!
         return Response.created(tokenManagementApiService.getResourceLocation(tokenId)).entity(patCreationResponse).build();
     }
 
     @Override
-    public Response tokensTokenIdDelete(String tokenId) {
+    public Response meTokensTokenIdDelete(String tokenId) {
         tokenManagementApiService.revokePAT(tokenId);
 
         // do some magic!
@@ -55,7 +56,7 @@ public class TokensApiServiceImpl implements TokensApiService {
     }
 
     @Override
-    public Response tokensTokenIdGet(String tokenId) {
+    public Response meTokensTokenIdGet(String tokenId) {
 
         // do some magic!
         return Response.ok().entity(tokenManagementApiService.getTokenMetadata(tokenId)).build();

@@ -11,6 +11,7 @@ package org.wso2.carbon.identity.pat.core.service.dao;
 
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientException;
 import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
 
 import java.sql.Connection;
@@ -19,10 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -53,7 +51,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
     }
 
     @Override
-    public TokenMetadataDTO getTokenMetadata(String tokenID, String userID) {
+    public TokenMetadataDTO getTokenMetadata(String tokenID, String userID) throws PATClientException {
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
                     PATSQLQueries.GET_TOKEN_METADATA)) {
@@ -64,21 +62,11 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 ResultSet resultSet = prepStmt.executeQuery();
 
                 if (resultSet.next()) {
-                    TokenMetadataDTO tokenMetadataDTO = new TokenMetadataDTO();
-                    tokenMetadataDTO.setTokenId(resultSet.getString(PATConstants.TOKEN_ID));
-                    tokenMetadataDTO.setAlias(resultSet.getString(PATConstants.ALIAS));
-                    tokenMetadataDTO.setDescription(resultSet.getString(PATConstants.DESCRIPTION));
-
-                    int validityPeriod = (int) TimeUnit.MILLISECONDS.toSeconds(resultSet
-                            .getInt(PATConstants.VALIDITY_PERIOD));
-                    String timeCreated = resultSet.getString(PATConstants.TIME_CREATED);
-                    String expiryTime = getExpiryTime(validityPeriod, timeCreated);
-                    tokenMetadataDTO.setTimeCreated(timeCreated);
-                    tokenMetadataDTO.setExpiryTime(expiryTime);
-                    return tokenMetadataDTO;
+                    return getTokenMetadataDTO(resultSet);
                 }
-                // TODO: handle exception
-                return null;
+                throw new PATClientException(
+                        PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID.getCode(),
+                        PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID.getMessage());
 
 
             } catch (SQLException e) {
@@ -118,17 +106,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                         scopes = new ArrayList<>();
                         scopes.add(resultSet.getString(PATConstants.TOKEN_SCOPE));
 
-                        tokenMetadataDTO = new TokenMetadataDTO();
-                        tokenMetadataDTO.setTokenId(tokenID);
-                        tokenMetadataDTO.setAlias(resultSet.getString(PATConstants.ALIAS));
-                        tokenMetadataDTO.setDescription(resultSet.getString(PATConstants.DESCRIPTION));
-
-                        int validityPeriod = (int) TimeUnit.MILLISECONDS.toSeconds(resultSet
-                                .getInt(PATConstants.VALIDITY_PERIOD));
-                        String timeCreated = resultSet.getString(PATConstants.TIME_CREATED);
-                        String expiryTime = getExpiryTime(validityPeriod, timeCreated);
-                        tokenMetadataDTO.setTimeCreated(timeCreated);
-                        tokenMetadataDTO.setExpiryTime(expiryTime);
+                        tokenMetadataDTO = getTokenMetadataDTO(resultSet);
                     } else {
                         scopes.add(resultSet.getString(PATConstants.TOKEN_SCOPE));
                     }
@@ -239,6 +217,23 @@ public class PATMgtDAOImpl implements PATMgtDAO {
         }
     }
 
+    private TokenMetadataDTO getTokenMetadataDTO(ResultSet resultSet) throws SQLException {
+
+        TokenMetadataDTO tokenMetadataDTO = new TokenMetadataDTO();
+        tokenMetadataDTO.setTokenId(resultSet.getString(PATConstants.TOKEN_ID));
+        tokenMetadataDTO.setAlias(resultSet.getString(PATConstants.ALIAS));
+        tokenMetadataDTO.setDescription(resultSet.getString(PATConstants.DESCRIPTION));
+
+        int validityPeriod = (int) TimeUnit.MILLISECONDS.toSeconds(resultSet
+                .getInt(PATConstants.VALIDITY_PERIOD));
+        String timeCreated = resultSet.getString(PATConstants.TIME_CREATED);
+        String expiryTime = getExpiryTime(validityPeriod, timeCreated);
+        tokenMetadataDTO.setTimeCreated(getISOStandardTime(timeCreated));
+        tokenMetadataDTO.setExpiryTime(getISOStandardTime(expiryTime));
+
+        return tokenMetadataDTO;
+    }
+
     private String getExpiryTime(int validityPeriod, String timeCreated) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Date timeCreatedObj = null;
@@ -254,6 +249,19 @@ public class PATMgtDAOImpl implements PATMgtDAO {
             // TODO: handle error
             throw new RuntimeException(e);
         }
+    }
+
+    private String getISOStandardTime(String time) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Date date;
+        try {
+            date = formatter.parse(time);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
+        return formatter.format(date);
     }
 
 

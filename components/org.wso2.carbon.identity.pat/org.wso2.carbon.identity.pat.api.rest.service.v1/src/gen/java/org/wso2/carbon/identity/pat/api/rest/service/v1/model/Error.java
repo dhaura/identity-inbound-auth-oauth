@@ -44,7 +44,7 @@ public class Error  {
         return this;
     }
     
-    @ApiModelProperty(example = "ATM-10001", required = true, value = "")
+    @ApiModelProperty(example = "APM-65000", required = true, value = "")
     @JsonProperty("code")
     @Valid
     @NotNull(message = "Property code cannot be null.")

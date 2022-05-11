@@ -32,39 +32,39 @@ import java.util.Objects;
 import javax.validation.Valid;
 import javax.xml.bind.annotation.*;
 
-public class TokenMetadataRetrievalResponse  {
+public class PATMetadata  {
   
-    private String tokenId;
+    private String id;
     private String alias;
     private String description;
-    private String timeCreated;
+    private String createdTime;
     private String expiryTime;
     private List<String> scope = new ArrayList<>();
 
 
     /**
     **/
-    public TokenMetadataRetrievalResponse tokenId(String tokenId) {
+    public PATMetadata id(String id) {
 
-        this.tokenId = tokenId;
+        this.id = id;
         return this;
     }
     
     @ApiModelProperty(example = "00a12e21-64a1-4b60-9434-3d06b222291c", required = true, value = "")
-    @JsonProperty("token_id")
+    @JsonProperty("id")
     @Valid
-    @NotNull(message = "Property tokenId cannot be null.")
+    @NotNull(message = "Property id cannot be null.")
 
-    public String getTokenId() {
-        return tokenId;
+    public String getId() {
+        return id;
     }
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
     **/
-    public TokenMetadataRetrievalResponse alias(String alias) {
+    public PATMetadata alias(String alias) {
 
         this.alias = alias;
         return this;
@@ -84,17 +84,15 @@ public class TokenMetadataRetrievalResponse  {
 
     /**
     **/
-    public TokenMetadataRetrievalResponse description(String description) {
+    public PATMetadata description(String description) {
 
         this.description = description;
         return this;
     }
     
-    @ApiModelProperty(example = "This is a description for Sample Alias", required = true, value = "")
+    @ApiModelProperty(example = "This is a description for Sample Alias", value = "")
     @JsonProperty("description")
     @Valid
-    @NotNull(message = "Property description cannot be null.")
-
     public String getDescription() {
         return description;
     }
@@ -104,34 +102,34 @@ public class TokenMetadataRetrievalResponse  {
 
     /**
     **/
-    public TokenMetadataRetrievalResponse timeCreated(String timeCreated) {
+    public PATMetadata createdTime(String createdTime) {
 
-        this.timeCreated = timeCreated;
+        this.createdTime = createdTime;
         return this;
     }
     
-    @ApiModelProperty(example = "2022-03-22 03:28:41", required = true, value = "")
-    @JsonProperty("time_created")
+    @ApiModelProperty(example = "2022-03-22T03:28:41Z", required = true, value = "")
+    @JsonProperty("createdTime")
     @Valid
-    @NotNull(message = "Property timeCreated cannot be null.")
+    @NotNull(message = "Property createdTime cannot be null.")
 
-    public String getTimeCreated() {
-        return timeCreated;
+    public String getCreatedTime() {
+        return createdTime;
     }
-    public void setTimeCreated(String timeCreated) {
-        this.timeCreated = timeCreated;
+    public void setCreatedTime(String createdTime) {
+        this.createdTime = createdTime;
     }
 
     /**
     **/
-    public TokenMetadataRetrievalResponse expiryTime(String expiryTime) {
+    public PATMetadata expiryTime(String expiryTime) {
 
         this.expiryTime = expiryTime;
         return this;
     }
     
-    @ApiModelProperty(example = "2022-03-22 03:58:41", required = true, value = "")
-    @JsonProperty("expiry_time")
+    @ApiModelProperty(example = "2022-03-22T03:58:41Z", required = true, value = "")
+    @JsonProperty("expiryTime")
     @Valid
     @NotNull(message = "Property expiryTime cannot be null.")
 
@@ -144,7 +142,7 @@ public class TokenMetadataRetrievalResponse  {
 
     /**
     **/
-    public TokenMetadataRetrievalResponse scope(List<String> scope) {
+    public PATMetadata scope(List<String> scope) {
 
         this.scope = scope;
         return this;
@@ -162,7 +160,7 @@ public class TokenMetadataRetrievalResponse  {
         this.scope = scope;
     }
 
-    public TokenMetadataRetrievalResponse addScopeItem(String scopeItem) {
+    public PATMetadata addScopeItem(String scopeItem) {
         this.scope.add(scopeItem);
         return this;
     }
@@ -178,30 +176,30 @@ public class TokenMetadataRetrievalResponse  {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse = (TokenMetadataRetrievalResponse) o;
-        return Objects.equals(this.tokenId, tokenMetadataRetrievalResponse.tokenId) &&
-            Objects.equals(this.alias, tokenMetadataRetrievalResponse.alias) &&
-            Objects.equals(this.description, tokenMetadataRetrievalResponse.description) &&
-            Objects.equals(this.timeCreated, tokenMetadataRetrievalResponse.timeCreated) &&
-            Objects.equals(this.expiryTime, tokenMetadataRetrievalResponse.expiryTime) &&
-            Objects.equals(this.scope, tokenMetadataRetrievalResponse.scope);
+        PATMetadata paTMetadata = (PATMetadata) o;
+        return Objects.equals(this.id, paTMetadata.id) &&
+            Objects.equals(this.alias, paTMetadata.alias) &&
+            Objects.equals(this.description, paTMetadata.description) &&
+            Objects.equals(this.createdTime, paTMetadata.createdTime) &&
+            Objects.equals(this.expiryTime, paTMetadata.expiryTime) &&
+            Objects.equals(this.scope, paTMetadata.scope);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tokenId, alias, description, timeCreated, expiryTime, scope);
+        return Objects.hash(id, alias, description, createdTime, expiryTime, scope);
     }
 
     @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("class TokenMetadataRetrievalResponse {\n");
+        sb.append("class PATMetadata {\n");
         
-        sb.append("    tokenId: ").append(toIndentedString(tokenId)).append("\n");
+        sb.append("    id: ").append(toIndentedString(id)).append("\n");
         sb.append("    alias: ").append(toIndentedString(alias)).append("\n");
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
-        sb.append("    timeCreated: ").append(toIndentedString(timeCreated)).append("\n");
+        sb.append("    createdTime: ").append(toIndentedString(createdTime)).append("\n");
         sb.append("    expiryTime: ").append(toIndentedString(expiryTime)).append("\n");
         sb.append("    scope: ").append(toIndentedString(scope)).append("\n");
         sb.append("}");

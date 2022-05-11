@@ -18,14 +18,14 @@
 
 package org.wso2.carbon.identity.pat.api.rest.service.v1.factories;
 
-import org.wso2.carbon.identity.pat.api.rest.service.v1.TokensApiService;
-import org.wso2.carbon.identity.pat.api.rest.service.v1.impl.TokensApiServiceImpl;
+import org.wso2.carbon.identity.pat.api.rest.service.v1.MeApiService;
+import org.wso2.carbon.identity.pat.api.rest.service.v1.impl.MeApiServiceImpl;
 
-public class TokensApiServiceFactory {
+public class MeApiServiceFactory {
 
-   private final static TokensApiService service = new TokensApiServiceImpl();
+   private final static MeApiService service = new MeApiServiceImpl();
 
-   public static TokensApiService getTokensApi()
+   public static MeApiService getMeApi()
    {
       return service;
    }

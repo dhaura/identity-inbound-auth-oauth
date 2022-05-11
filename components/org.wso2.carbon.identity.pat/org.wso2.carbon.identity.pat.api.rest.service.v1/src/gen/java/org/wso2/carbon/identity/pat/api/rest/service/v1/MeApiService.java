@@ -27,17 +27,17 @@ import java.util.List;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.Error;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationRequest;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationResponse;
-import org.wso2.carbon.identity.pat.api.rest.service.v1.model.TokenMetadataRetrievalResponse;
+import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATMetadata;
 import javax.ws.rs.core.Response;
 
 
-public interface TokensApiService {
+public interface MeApiService {
 
-      public Response tokensGet();
+      public Response meTokensGet();
 
-      public Response tokensPost(PATCreationRequest paTCreationRequest);
+      public Response meTokensPost(PATCreationRequest paTCreationRequest);
 
-      public Response tokensTokenIdDelete(String tokenId);
+      public Response meTokensTokenIdDelete(String tokenId);
 
-      public Response tokensTokenIdGet(String tokenId);
+      public Response meTokensTokenIdGet(String tokenId);
 }

@@ -21,7 +21,7 @@ import org.wso2.carbon.identity.pat.api.rest.commons.exceptions.ErrorResponse;
 import org.wso2.carbon.identity.pat.api.rest.commons.util.Constants;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationRequest;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationResponse;
-import org.wso2.carbon.identity.pat.api.rest.service.v1.model.TokenMetadataRetrievalResponse;
+import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATMetadata;
 import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientException;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATException;
@@ -47,18 +47,31 @@ public class TokenManagementApiService {
         }
     }
 
-    public TokenMetadataRetrievalResponse getTokenMetadata(String tokenId) {
-        TokenMetadataDTO tokenMetadataDTO = PATApiMgtDataHolder.getPatManagementService().getTokenMetadata(tokenId);
-        return getTokenMetadataRetrievalResponse(tokenMetadataDTO);
+    public PATMetadata getTokenMetadata(String tokenId) {
+        try {
+            TokenMetadataDTO tokenMetadataDTO = PATApiMgtDataHolder.getPatManagementService().getTokenMetadata(tokenId);
+            return getTokenMetadata(tokenMetadataDTO);
+        } catch (PATException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
-    public List<TokenMetadataRetrievalResponse> getTokensMetadata() {
-        List<TokenMetadataDTO> tokenMetadataDTOList = PATApiMgtDataHolder.getPatManagementService().getTokensMetadata();
-        return getTokensMetadataRetrievalResponse(tokenMetadataDTOList);
+    public List<PATMetadata> getTokensMetadata() {
+        try {
+            List<TokenMetadataDTO> tokenMetadataDTOList = PATApiMgtDataHolder.getPatManagementService().getTokensMetadata();
+            return getTokensMetadata(tokenMetadataDTOList);
+        } catch (PATException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void revokePAT(String tokenId) {
-        PATApiMgtDataHolder.getPatManagementService().revokePAT(tokenId);
+        try {
+            PATApiMgtDataHolder.getPatManagementService().revokePAT(tokenId);
+        } catch (PATException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public URI getResourceLocation(String tokenId) {
@@ -81,8 +94,8 @@ public class TokenManagementApiService {
     private PATCreationResponse getPATCreationResponse(PATCreationRespDTO patCreationRespDTO) {
         PATCreationResponse patCreationResponse = new PATCreationResponse();
 
-        patCreationResponse.setTokenId(patCreationRespDTO.getTokenId());
-        patCreationResponse.setAccessToken(patCreationRespDTO.getAccessToken());
+        patCreationResponse.setId(patCreationRespDTO.getTokenId());
+        patCreationResponse.setToken(patCreationRespDTO.getAccessToken());
         patCreationResponse.setAlias(patCreationRespDTO.getAlias());
         patCreationResponse.setDescription(patCreationRespDTO.getDescription());
         patCreationResponse.setScope(patCreationRespDTO.getScope());
@@ -91,31 +104,31 @@ public class TokenManagementApiService {
         return patCreationResponse;
     }
 
-    private TokenMetadataRetrievalResponse getTokenMetadataRetrievalResponse(TokenMetadataDTO tokenMetadataDTO) {
-        TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse = new TokenMetadataRetrievalResponse();
-        tokenMetadataRetrievalResponse.setTokenId(tokenMetadataDTO.getTokenId());
-        tokenMetadataRetrievalResponse.setAlias(tokenMetadataDTO.getAlias());
-        tokenMetadataRetrievalResponse.setDescription(tokenMetadataDTO.getDescription());
-        tokenMetadataRetrievalResponse.setTimeCreated(tokenMetadataDTO.getTimeCreated());
-        tokenMetadataRetrievalResponse.setExpiryTime(tokenMetadataDTO.getExpiryTime());
-        tokenMetadataRetrievalResponse.setScope(tokenMetadataDTO.getScope());
+    private PATMetadata getTokenMetadata(TokenMetadataDTO tokenMetadataDTO) {
+        PATMetadata patMetadata = new PATMetadata();
+        patMetadata.setId(tokenMetadataDTO.getTokenId());
+        patMetadata.setAlias(tokenMetadataDTO.getAlias());
+        patMetadata.setDescription(tokenMetadataDTO.getDescription());
+        patMetadata.setCreatedTime(tokenMetadataDTO.getTimeCreated());
+        patMetadata.setExpiryTime(tokenMetadataDTO.getExpiryTime());
+        patMetadata.setScope(tokenMetadataDTO.getScope());
 
-        return tokenMetadataRetrievalResponse;
+        return patMetadata;
     }
 
-    private List<TokenMetadataRetrievalResponse> getTokensMetadataRetrievalResponse
+    private List<PATMetadata> getTokensMetadata
             (List<TokenMetadataDTO> tokenMetadataDTOList) {
 
-        List<TokenMetadataRetrievalResponse> tokenMetadataRetrievalResponseList = new ArrayList<>();
+        List<PATMetadata> patMetadataList = new ArrayList<>();
 
         for (TokenMetadataDTO tokenMetadataDTO : tokenMetadataDTOList) {
-            TokenMetadataRetrievalResponse tokenMetadataRetrievalResponse
-                    = getTokenMetadataRetrievalResponse(tokenMetadataDTO);
+            PATMetadata patMetadata
+                    = getTokenMetadata(tokenMetadataDTO);
 
-            tokenMetadataRetrievalResponseList.add(tokenMetadataRetrievalResponse);
+            patMetadataList.add(patMetadata);
         }
 
-        return tokenMetadataRetrievalResponseList;
+        return patMetadataList;
     }
 
     /**

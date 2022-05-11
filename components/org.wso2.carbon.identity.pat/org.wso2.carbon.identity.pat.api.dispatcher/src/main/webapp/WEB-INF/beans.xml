@@ -25,7 +25,7 @@
     </bean>
     <jaxrs:server id="pat" address="/v1">
         <jaxrs:serviceBeans>
-            <bean class="org.wso2.carbon.identity.pat.api.rest.service.v1.TokensApi"/>
+            <bean class="org.wso2.carbon.identity.pat.api.rest.service.v1.MeApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">

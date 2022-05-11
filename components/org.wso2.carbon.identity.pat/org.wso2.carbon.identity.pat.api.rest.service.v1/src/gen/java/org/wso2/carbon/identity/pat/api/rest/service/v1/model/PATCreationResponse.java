@@ -34,8 +34,8 @@ import javax.xml.bind.annotation.*;
 
 public class PATCreationResponse  {
   
-    private String tokenId;
-    private String accessToken;
+    private String id;
+    private String token;
     private String alias;
     private String description;
     private List<String> scope = new ArrayList<>();
@@ -44,42 +44,42 @@ public class PATCreationResponse  {
 
     /**
     **/
-    public PATCreationResponse tokenId(String tokenId) {
+    public PATCreationResponse id(String id) {
 
-        this.tokenId = tokenId;
+        this.id = id;
         return this;
     }
     
     @ApiModelProperty(example = "00a12e21-64a1-4b60-9434-3d06b222291c", required = true, value = "")
-    @JsonProperty("token_id")
+    @JsonProperty("id")
     @Valid
-    @NotNull(message = "Property tokenId cannot be null.")
+    @NotNull(message = "Property id cannot be null.")
 
-    public String getTokenId() {
-        return tokenId;
+    public String getId() {
+        return id;
     }
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
     **/
-    public PATCreationResponse accessToken(String accessToken) {
+    public PATCreationResponse token(String token) {
 
-        this.accessToken = accessToken;
+        this.token = token;
         return this;
     }
     
     @ApiModelProperty(example = "6edb0049-0ea3-3b26-9aa3-152b1891d200", required = true, value = "")
-    @JsonProperty("access_token")
+    @JsonProperty("token")
     @Valid
-    @NotNull(message = "Property accessToken cannot be null.")
+    @NotNull(message = "Property token cannot be null.")
 
-    public String getAccessToken() {
-        return accessToken;
+    public String getToken() {
+        return token;
     }
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     /**
@@ -110,11 +110,9 @@ public class PATCreationResponse  {
         return this;
     }
     
-    @ApiModelProperty(example = "This is a description for Sample Alias", required = true, value = "")
+    @ApiModelProperty(example = "This is a description for Sample Alias", value = "")
     @JsonProperty("description")
     @Valid
-    @NotNull(message = "Property description cannot be null.")
-
     public String getDescription() {
         return description;
     }
@@ -156,7 +154,7 @@ public class PATCreationResponse  {
     }
     
     @ApiModelProperty(example = "2000", required = true, value = "")
-    @JsonProperty("validity_period")
+    @JsonProperty("validityPeriod")
     @Valid
     @NotNull(message = "Property validityPeriod cannot be null.")
 
@@ -179,8 +177,8 @@ public class PATCreationResponse  {
             return false;
         }
         PATCreationResponse paTCreationResponse = (PATCreationResponse) o;
-        return Objects.equals(this.tokenId, paTCreationResponse.tokenId) &&
-            Objects.equals(this.accessToken, paTCreationResponse.accessToken) &&
+        return Objects.equals(this.id, paTCreationResponse.id) &&
+            Objects.equals(this.token, paTCreationResponse.token) &&
             Objects.equals(this.alias, paTCreationResponse.alias) &&
             Objects.equals(this.description, paTCreationResponse.description) &&
             Objects.equals(this.scope, paTCreationResponse.scope) &&
@@ -189,7 +187,7 @@ public class PATCreationResponse  {
 
     @Override
     public int hashCode() {
-        return Objects.hash(tokenId, accessToken, alias, description, scope, validityPeriod);
+        return Objects.hash(id, token, alias, description, scope, validityPeriod);
     }
 
     @Override
@@ -198,8 +196,8 @@ public class PATCreationResponse  {
         StringBuilder sb = new StringBuilder();
         sb.append("class PATCreationResponse {\n");
         
-        sb.append("    tokenId: ").append(toIndentedString(tokenId)).append("\n");
-        sb.append("    accessToken: ").append(toIndentedString(accessToken)).append("\n");
+        sb.append("    id: ").append(toIndentedString(id)).append("\n");
+        sb.append("    token: ").append(toIndentedString(token)).append("\n");
         sb.append("    alias: ").append(toIndentedString(alias)).append("\n");
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
         sb.append("    scope: ").append(toIndentedString(scope)).append("\n");

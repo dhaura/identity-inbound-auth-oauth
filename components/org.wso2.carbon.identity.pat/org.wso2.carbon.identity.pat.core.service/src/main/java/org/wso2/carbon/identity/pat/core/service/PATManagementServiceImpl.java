@@ -110,14 +110,20 @@ public class PATManagementServiceImpl implements PATManagementService {
     }
 
     @Override
-    public TokenMetadataDTO getTokenMetadata(String tokenId) {
+    public TokenMetadataDTO getTokenMetadata(String tokenId) throws PATException {
         String userId = PATUtil.getUserID();
 
-        PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
-        TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId, userId);
-        tokenMetadataDTO.setScope(patMgtDAO.getTokenScopes(tokenId));
+        if (StringUtils.isNotBlank(tokenId)) {
+            PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
+            TokenMetadataDTO tokenMetadataDTO = patMgtDAO.getTokenMetadata(tokenId, userId);
+            tokenMetadataDTO.setScope(patMgtDAO.getTokenScopes(tokenId));
 
-        return tokenMetadataDTO;
+            return tokenMetadataDTO;
+        } else {
+            throw new PATClientException(
+                    PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID.getCode(),
+                    PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID.getMessage());
+        }
     }
 
     @Override
@@ -132,7 +138,7 @@ public class PATManagementServiceImpl implements PATManagementService {
     }
 
     @Override
-    public void revokePAT(String tokenId) {
+    public void revokePAT(String tokenId) throws PATException {
         String userId = PATUtil.getUserID();
         String username = PATUtil.getUserName();
 
@@ -238,6 +244,9 @@ public class PATManagementServiceImpl implements PATManagementService {
 
     private void triggerEmail(String email, String  alias, String description, String templateType)
             throws IdentityEventException {
+
+        // TODO: 5/10/2022 Try again the email flow with username
+        // TODO: 5/10/2022 try out the new api def
 
         HashMap<String, Object> properties = new HashMap<>();
         String encodedEmail;
