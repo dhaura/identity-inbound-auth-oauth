@@ -50,14 +50,14 @@ public class MeApi  {
     @Path("/tokens")
     
     @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieve metadata of PATs", notes = "Provides the capability to retrieve Metadata of all Personal Access Tokens of the authenticated user.", response = PATMetadata.class, responseContainer = "List", authorizations = {
+    @ApiOperation(value = "Retrieve metadata of PATs", notes = "Provides the capability to retrieve Metadata of all Personal Access Tokens of the authenticated user.", response = List.class, responseContainer = "List", authorizations = {
         @Authorization(value = "BasicAuth"),
         @Authorization(value = "OAuth2", scopes = {
             
         })
     }, tags={ "PAT Management", })
     @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "List of metadata of PATs successfully retrieved.", response = PATMetadata.class, responseContainer = "List"),
+        @ApiResponse(code = 200, message = "List of metadata of PATs successfully retrieved.", response = Object.class, responseContainer = "List"),
         @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
         @ApiResponse(code = 403, message = "Resources Forbidden", response = Void.class),
         @ApiResponse(code = 500, message = "Internal Server Error", response = Error.class)

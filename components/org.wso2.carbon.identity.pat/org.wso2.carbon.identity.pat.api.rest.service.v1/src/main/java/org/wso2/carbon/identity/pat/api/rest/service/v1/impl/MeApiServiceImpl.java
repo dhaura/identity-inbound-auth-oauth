@@ -20,36 +20,36 @@ package org.wso2.carbon.identity.pat.api.rest.service.v1.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.*;
-import org.wso2.carbon.identity.pat.api.rest.service.v1.core.TokenManagementApiService;
+import org.wso2.carbon.identity.pat.api.rest.service.v1.core.PATManagementApiService;
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.*;
-import java.util.List;
+
 import javax.ws.rs.core.Response;
 
 public class MeApiServiceImpl implements MeApiService {
 
     @Autowired
-    private TokenManagementApiService tokenManagementApiService;
+    private PATManagementApiService patManagementApiService;
 
     @Override
     public Response meTokensGet() {
 
         // do some magic!
-        return Response.ok().entity(tokenManagementApiService.getTokensMetadata()).build();
+        return Response.ok().entity(patManagementApiService.getPATsMetadata()).build();
     }
 
     @Override
     public Response meTokensPost(PATCreationRequest paTCreationRequest) {
 
-        PATCreationResponse patCreationResponse = tokenManagementApiService.issuePAT(paTCreationRequest);
+        PATCreationResponse patCreationResponse = patManagementApiService.issuePAT(paTCreationRequest);
         String tokenId = patCreationResponse.getId();
 
         // do some magic!
-        return Response.created(tokenManagementApiService.getResourceLocation(tokenId)).entity(patCreationResponse).build();
+        return Response.created(patManagementApiService.getResourceLocation(tokenId)).entity(patCreationResponse).build();
     }
 
     @Override
     public Response meTokensTokenIdDelete(String tokenId) {
-        tokenManagementApiService.revokePAT(tokenId);
+        patManagementApiService.revokePAT(tokenId);
 
         // do some magic!
         return Response.noContent().build();
@@ -59,6 +59,6 @@ public class MeApiServiceImpl implements MeApiService {
     public Response meTokensTokenIdGet(String tokenId) {
 
         // do some magic!
-        return Response.ok().entity(tokenManagementApiService.getTokenMetadata(tokenId)).build();
+        return Response.ok().entity(patManagementApiService.getPATMetadata(tokenId)).build();
     }
 }

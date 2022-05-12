@@ -9,10 +9,12 @@
 
 package org.wso2.carbon.identity.pat.core.service.exeptions;
 
+import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
+
 /**
- * PAT management server exception.
+ * PAT management client exception.
  */
-public class PATServerException extends PATException {
+public class PATClientManagementException extends PATManagementException {
 
     private String errorCode = null;
 
@@ -21,7 +23,7 @@ public class PATServerException extends PATException {
      *
      * @param message Error message.
      */
-    public PATServerException(String message) {
+    public PATClientManagementException(String message) {
 
         super(message);
     }
@@ -32,10 +34,21 @@ public class PATServerException extends PATException {
      * @param message   Error message.
      * @param errorCode Error code.
      */
-    public PATServerException(String errorCode, String message) {
+    public PATClientManagementException(String errorCode, String message) {
 
         super(message);
         this.errorCode = errorCode;
+    }
+
+    /**
+     * Constructor with Enum.
+     *
+     * @param error   Enum that contains error code and message.
+     */
+    public PATClientManagementException(PATConstants.ErrorMessage error) {
+
+        super(error.getMessage());
+        this.errorCode = error.getCode();
     }
 
     /**
@@ -45,7 +58,7 @@ public class PATServerException extends PATException {
      * @param errorCode Error code.
      * @param cause     If any error occurred when accessing the tenant.
      */
-    public PATServerException(String errorCode, String message, Throwable cause) {
+    public PATClientManagementException(String errorCode, String message, Throwable cause) {
 
         super(message, cause);
         this.errorCode = errorCode;
@@ -57,7 +70,7 @@ public class PATServerException extends PATException {
      * @param message Error message.
      * @param cause   If any error occurred when deleting the tenant.
      */
-    public PATServerException(String message, Throwable cause) {
+    public PATClientManagementException(String message, Throwable cause) {
 
         super(message, cause);
     }
@@ -67,7 +80,7 @@ public class PATServerException extends PATException {
      *
      * @param cause If any error occurred when accessing the tenant.
      */
-    public PATServerException(Throwable cause) {
+    public PATClientManagementException(Throwable cause) {
 
         super(cause);
     }
@@ -77,5 +90,3 @@ public class PATServerException extends PATException {
         return errorCode;
     }
 }
-
-

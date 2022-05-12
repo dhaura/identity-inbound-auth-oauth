@@ -9,15 +9,16 @@
 
 package org.wso2.carbon.identity.pat.core.service.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class TokenMetadataDTO {
+public class PATData {
     private String tokenId;
+    private String accessToken;
     private String alias;
     private String description;
-    private String timeCreated;
-    private String expiryTime;
-    private List<String> scope;
+    private List<String> scope = new ArrayList<>();
+    private long validityPeriod;
 
     public String getTokenId() {
         return tokenId;
@@ -43,20 +44,12 @@ public class TokenMetadataDTO {
         this.description = description;
     }
 
-    public String getTimeCreated() {
-        return timeCreated;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setTimeCreated(String timeCreated) {
-        this.timeCreated = timeCreated;
-    }
-
-    public String getExpiryTime() {
-        return expiryTime;
-    }
-
-    public void setExpiryTime(String expiryTime) {
-        this.expiryTime = expiryTime;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public List<String> getScope() {
@@ -65,5 +58,13 @@ public class TokenMetadataDTO {
 
     public void setScope(List<String> scope) {
         this.scope = scope;
+    }
+
+    public long getValidityPeriod() {
+        return validityPeriod;
+    }
+
+    public void setValidityPeriod(long validityPeriod) {
+        this.validityPeriod = validityPeriod;
     }
 }

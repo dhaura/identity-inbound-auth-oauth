@@ -9,22 +9,22 @@
 
 package org.wso2.carbon.identity.pat.core.service.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class PATCreationReqDTO {
+public class PATViewMetadata {
+    private String tokenId;
     private String alias;
     private String description;
-    private Integer validityPeriod;
-    private List<String> scope = new ArrayList<>();
-    private String clientID;
+    private String timeCreated;
+    private String expiryTime;
+    private List<String> scope;
 
-    public String getClientID() {
-        return clientID;
+    public String getTokenId() {
+        return tokenId;
     }
 
-    public void setClientID(String clientID) {
-        this.clientID = clientID;
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
     }
 
     public String getAlias() {
@@ -43,12 +43,20 @@ public class PATCreationReqDTO {
         this.description = description;
     }
 
-    public Integer getValidityPeriod() {
-        return validityPeriod;
+    public String getTimeCreated() {
+        return timeCreated;
     }
 
-    public void setValidityPeriod(Integer validityPeriod) {
-        this.validityPeriod = validityPeriod;
+    public void setTimeCreated(String timeCreated) {
+        this.timeCreated = timeCreated;
+    }
+
+    public String getExpiryTime() {
+        return expiryTime;
+    }
+
+    public void setExpiryTime(String expiryTime) {
+        this.expiryTime = expiryTime;
     }
 
     public List<String> getScope() {
@@ -58,5 +66,4 @@ public class PATCreationReqDTO {
     public void setScope(List<String> scope) {
         this.scope = scope;
     }
-
 }

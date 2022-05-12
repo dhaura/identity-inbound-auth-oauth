@@ -12,18 +12,19 @@ package org.wso2.carbon.identity.pat.core.service.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PATCreationRespDTO {
-    private String tokenId;
-    private String accessToken;
+public class PATCreationData {
     private String alias;
     private String description;
+    private Integer validityPeriod;
+    private List<String> scope = new ArrayList<>();
+    private String clientID;
 
-    public String getTokenId() {
-        return tokenId;
+    public String getClientID() {
+        return clientID;
     }
 
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
+    public void setClientID(String clientID) {
+        this.clientID = clientID;
     }
 
     public String getAlias() {
@@ -42,16 +43,12 @@ public class PATCreationRespDTO {
         this.description = description;
     }
 
-    private List<String> scope = new ArrayList<>();
-
-    private long validityPeriod;
-
-    public String getAccessToken() {
-        return accessToken;
+    public Integer getValidityPeriod() {
+        return validityPeriod;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setValidityPeriod(Integer validityPeriod) {
+        this.validityPeriod = validityPeriod;
     }
 
     public List<String> getScope() {
@@ -62,11 +59,4 @@ public class PATCreationRespDTO {
         this.scope = scope;
     }
 
-    public long getValidityPeriod() {
-        return validityPeriod;
-    }
-
-    public void setValidityPeriod(long validityPeriod) {
-        this.validityPeriod = validityPeriod;
-    }
 }

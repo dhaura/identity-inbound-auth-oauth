@@ -126,7 +126,26 @@ components:
     PATMetadataList:
       type: array
       items:
-        $ref: '#/components/schemas/PATMetadata'
+        $ref: '#/components/schemas/PATBasicMetadata'
+    PATBasicMetadata:
+      items:
+        type: object
+        required:
+          - id
+          - alias
+          - createdTime
+          - expiryTime
+        properties:
+          id:
+            $ref: '#/components/schemas/TokenId'
+          alias:
+            $ref: '#/components/schemas/Alias'
+          description:
+            $ref: '#/components/schemas/Description'
+          createdTime:
+            $ref: '#/components/schemas/CreatedTime'
+          expiryTime:
+            $ref: '#/components/schemas/ExpiryTime'
     PATMetadata:
       type: object
       required:
@@ -143,11 +162,9 @@ components:
         description:
           $ref: '#/components/schemas/Description'
         createdTime:
-          type: string
-          example: "2022-03-22T03:28:41Z"
+          $ref: '#/components/schemas/CreatedTime'
         expiryTime:
-          type: string
-          example: "2022-03-22T03:58:41Z"
+          $ref: '#/components/schemas/ExpiryTime'
         scope:
           $ref: '#/components/schemas/Scope'
     PATCreationResponse:
@@ -200,6 +217,14 @@ components:
     ValidityPeriod:
       type: integer
       example: 2000
+    CreatedTime:
+      type: string
+      description: "PAT creation time in ISO Date and Time format"
+      example: "2022-03-22T03:28:41Z"
+    ExpiryTime:
+      type: string
+      description: "PAT expiry time in ISO Date and Time format"
+      example: "2022-03-22T03:58:41Z"
     Scope:
       items:
         type: string

@@ -62,7 +62,7 @@ public class PATUtil {
      *
      * @return String
      */
-    public static String getUserID() {
+    public static String getUserIdFromContext() {
         return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserId();
     }
 
@@ -71,7 +71,7 @@ public class PATUtil {
      *
      * @return String
      */
-    public static String getUserName() {
+    public static String getUserNameFromContext() {
         return PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
     }
 

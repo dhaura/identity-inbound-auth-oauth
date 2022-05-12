@@ -10,9 +10,9 @@
 package org.wso2.carbon.identity.pat.core.service.exeptions;
 
 /**
- * PAT management client exception.
+ *PAT management base exception.
  */
-public class PATClientException extends PATException {
+public class PATManagementException extends Exception {
 
     private String errorCode = null;
 
@@ -21,7 +21,7 @@ public class PATClientException extends PATException {
      *
      * @param message Error message.
      */
-    public PATClientException(String message) {
+    public PATManagementException(String message) {
 
         super(message);
     }
@@ -32,7 +32,7 @@ public class PATClientException extends PATException {
      * @param message   Error message.
      * @param errorCode Error code.
      */
-    public PATClientException(String errorCode, String message) {
+    public PATManagementException(String errorCode, String message) {
 
         super(message);
         this.errorCode = errorCode;
@@ -45,7 +45,7 @@ public class PATClientException extends PATException {
      * @param errorCode Error code.
      * @param cause     If any error occurred when accessing the tenant.
      */
-    public PATClientException(String errorCode, String message, Throwable cause) {
+    public PATManagementException(String errorCode, String message, Throwable cause) {
 
         super(message, cause);
         this.errorCode = errorCode;
@@ -57,7 +57,7 @@ public class PATClientException extends PATException {
      * @param message Error message.
      * @param cause   If any error occurred when deleting the tenant.
      */
-    public PATClientException(String message, Throwable cause) {
+    public PATManagementException(String message, Throwable cause) {
 
         super(message, cause);
     }
@@ -65,9 +65,9 @@ public class PATClientException extends PATException {
     /**
      * Constructor with error cause.
      *
-     * @param cause If any error occurred when accessing the tenant.
+     * @param cause Cause of the error.
      */
-    public PATClientException(Throwable cause) {
+    public PATManagementException(Throwable cause) {
 
         super(cause);
     }

@@ -10,19 +10,46 @@
 package org.wso2.carbon.identity.pat.core.service;
 
 
-import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientException;
-import org.wso2.carbon.identity.pat.core.service.exeptions.PATException;
-import org.wso2.carbon.identity.pat.core.service.model.PATCreationReqDTO;
-import org.wso2.carbon.identity.pat.core.service.model.PATCreationRespDTO;
-import org.wso2.carbon.identity.pat.core.service.model.TokenMetadataDTO;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementException;
+import org.wso2.carbon.identity.pat.core.service.model.PATCreationData;
+import org.wso2.carbon.identity.pat.core.service.model.PATData;
+import org.wso2.carbon.identity.pat.core.service.model.PATViewMetadata;
 
 import java.util.List;
 
+/**
+ * Interface for the PAT management service .
+ */
 public interface PATManagementService {
 
-    public PATCreationRespDTO issuePAT(PATCreationReqDTO patCreationReqDTO) throws PATException;
-    public TokenMetadataDTO getTokenMetadata(String tokenId) throws PATException;
-    public List<TokenMetadataDTO> getTokensMetadata() throws PATException;
-    public void revokePAT(String tokenId) throws PATException;
+    /**
+     * Creates Personal Access Token.
+     *
+     * @param patCreationData Data related to the PAT creation.
+     * @return PATData  Data containing the new Personal Access Token and its attributes.
+     */
+    PATData issueToken(PATCreationData patCreationData) throws PATManagementException;
+
+    /**
+     * Get metadata of the specified Personal Access Token.
+     *
+     * @param tokenId Token ID related to the specified PAT.
+     * @return PATViewMetadata  Metadata related to the PAT.
+     */
+    PATViewMetadata getTokenMetadata(String tokenId) throws PATManagementException;
+
+    /**
+     * Get Personal Access Token metadata list for the authorized user.
+     *
+     * @return List<PATViewMetadata>  List of PAT Metadata related the requesting user.
+     */
+    List<PATViewMetadata> getTokensMetadata() throws PATManagementException;
+
+    /**
+     * Revoke the specified Personal Access Token.
+     *
+     * @param tokenId Token ID related to the specified PAT.
+     */
+    void revokeToken(String tokenId) throws PATManagementException;
 
 }

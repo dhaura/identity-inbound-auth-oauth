@@ -43,14 +43,14 @@ public class PATConstants {
     public enum ErrorMessage {
 
         ERROR_CODE_EMPTY_ALIAS("IPM-95001", "Alias parameter cannot be empty."),
-        ERROR_CODE_EMPTY_DESCRIPTION("IPM-95002",
-                "If Description parameter available then it cannot be empty."),
-        ERROR_CODE_INVALID_VALIDITY_PERIOD("IPM-95003",
+        ERROR_CODE_INVALID_VALIDITY_PERIOD("IPM-95002",
                 "Validity period cannot be empty and should contain a positive long value."),
-        ERROR_CODE_SCOPES_NOT_PRESENT("IPM-95004", "At least one scope should be present."),
+        ERROR_CODE_SCOPES_NOT_PRESENT("IPM-95003", "At least one scope should be present."),
+        ERROR_CODE_INVALID_SCOPES("IPM-95004", "Scopes should be valid."),
+
         ERROR_CODE_EMPTY_CLIENT_ID("IPM-95005", "Client ID parameter cannot be empty."),
         ERROR_CODE_EMPTY_TOKEN_ID("IPM-95006", "Token ID path parameter cannot be empty."),
-        ERROR_CODE_INVALID_TOKEN_ID("IPM-95007", "Error occurred while creating personal access token."),
+        ERROR_CODE_INVALID_TOKEN_ID("IPM-95007", "Token ID path parameter should be valid."),
         ERROR_CREATING_PAT("IPM-95008", "Token ID path parameter should be valid."),
         ERROR_RETRIEVING_TOKEN_METADATA("IPM-95009", "Error occurred while retrieving token metadata."),
         ERROR_RETRIEVING_TOKEN_SCOPES("IPM-95010", "Error occurred while retrieving token scopes."),
