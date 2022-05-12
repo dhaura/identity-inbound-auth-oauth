@@ -10,6 +10,7 @@
 package org.wso2.carbon.identity.pat.core.service.dao;
 
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientManagementException;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementException;
@@ -34,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class PATMgtDAOImpl implements PATMgtDAO {
 
     @Override
-    public void insertPATData(String tokenID, String alias, String description) {
+    public void insertPATData(String tokenID, String alias, String description) throws IdentityOAuth2Exception {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
@@ -47,16 +48,19 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 IdentityDatabaseUtil.commitTransaction(connection);
 
             } catch (SQLException e) {
-                // TODO: handle exception
                 IdentityDatabaseUtil.rollbackTransaction(connection);
+                throw new IdentityOAuth2Exception("Error occurred while persisting the alias and description " +
+                        "of the new Personal Access Token.", e);
             }
         } catch (SQLException e) {
-            // TODO: handle exception
+            throw new IdentityOAuth2Exception("Error occurred while persisting the alias and description " +
+                    "of the new Personal Access Token.", e);
         }
     }
 
     @Override
     public PATViewMetadata getPATMetadata(String tokenID, String userID) throws PATManagementException {
+
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
                     PATSQLQueries.GET_TOKEN_METADATA)) {
@@ -84,6 +88,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
     @Override
     public List<PATViewMetadata> getPATsMetadata(String userID) throws PATManagementException {
+
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
                     PATSQLQueries.GET_TOKENS_METADATA)) {
@@ -92,7 +97,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 prepStmt.setString(2, PATConstants.PAT);
                 ResultSet resultSet = prepStmt.executeQuery();
 
-                PATViewMetadata patViewMetadata = null;
+                PATViewMetadata patViewMetadata;
                 List<PATViewMetadata> patViewMetadataList = new ArrayList<>();
 
                 while (resultSet.next()) {
@@ -113,6 +118,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
     @Override
     public List<String> getPATScopes(String tokenID) throws PATManagementException {
+
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
                     PATSQLQueries.GET_TOKEN_SCOPES)) {
@@ -139,6 +145,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
     @Override
     public String getPAT(String tokenID) throws PATManagementException {
+
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
                     PATSQLQueries.GET_ACCESS_TOKEN)) {
@@ -166,6 +173,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
     @Override
     public String getClientIDFromTokenID(String tokenID) throws PATManagementException {
+
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
                     PATSQLQueries.GET_CLIENT_ID_FROM_TOKEN_ID)) {
@@ -189,6 +197,32 @@ public class PATMgtDAOImpl implements PATMgtDAO {
         }
     }
 
+    @Override
+    public boolean isDuplicatedAlias(String userId, String alias) throws PATManagementException {
+
+        try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
+            try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
+                    PATSQLQueries.GET_TOKEN_ID_FROM_ALIAS)) {
+
+                prepStmt.setString(1, userId);
+                prepStmt.setString(2, alias);
+                prepStmt.setString(3, PATConstants.PAT);
+                ResultSet resultSet = prepStmt.executeQuery();
+
+                if (resultSet.next()) {
+                    return true;
+                }
+                return false;
+
+            } catch (SQLException e) {
+                IdentityDatabaseUtil.rollbackTransaction(connection);
+                throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_VALIDATING_DUPLICATED_ALIAS);
+            }
+        } catch (SQLException e) {
+            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_VALIDATING_DUPLICATED_ALIAS);
+        }
+    }
+
     private PATViewMetadata getPATViewMetadata(ResultSet resultSet)
             throws PATServerManagementException, SQLException {
 
@@ -208,6 +242,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
     }
 
     private String getExpiryTime(int validityPeriod, String timeCreated) throws PATServerManagementException {
+
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Date timeCreatedObj = null;
         try {
@@ -224,6 +259,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
     }
 
     private String getISOStandardTime(String time) throws PATServerManagementException {
+
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Date date;
         try {

@@ -28,10 +28,20 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
 import org.wso2.carbon.user.core.service.RealmService;
 
+/**
+ * PAT Grant Handler for the custom PAT grant type.
+ */
 public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
 
     private static final Log log = LogFactory.getLog(PATGrantHandler.class);
 
+    /**
+     * Issues Personal Access Token and persists its alias and description.
+     *
+     * @param tokReqMsgCtx Data related to the PAT creation.
+     * @return OAuth2AccessTokenRespDTO  Data containing the new Personal Access Token and its attributes.
+     * @throws IdentityOAuth2Exception Error when generating or persisting the access token and its attributes
+     */
     @Override
     public OAuth2AccessTokenRespDTO issue(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
 
@@ -53,8 +63,13 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
         return responseDTO;
     }
 
+    /**
+     * Tells if the refresh tokens are issued for PAT.
+     *
+     * @return boolean  Returns false since refresh tokens are not needed for PATs.
+     */
     @Override
-    public boolean issueRefreshToken() throws IdentityOAuth2Exception {
+    public boolean issueRefreshToken() {
 
         return false;
     }
@@ -79,34 +94,24 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
 
                     return true;
                 }
-            } else {
-                log.info("Tenant Domain or User ID is not provided for the PAT.");
             }
-
-
         }
         return false;
     }
 
-    private AuthenticatedUser getAuthenticatedUser(String userID, String tenantDomain) {
+    private AuthenticatedUser getAuthenticatedUser(String userID, String tenantDomain) throws IdentityOAuth2Exception {
 
-        AbstractUserStoreManager userStoreManager = null;
-        try {
-            userStoreManager = getUserStoreManager(tenantDomain);
-        } catch (IdentityOAuth2Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Error occurred while retrieving user store manager:  ", e);
-            }
-        }
+        AbstractUserStoreManager userStoreManager = getUserStoreManager(tenantDomain);
 
         if (userStoreManager != null) {
-            User user = null;
+            User user;
             try {
                 user = PATUtil.getUser(userID, userStoreManager);
             } catch (UserStoreException e) {
                 if (log.isDebugEnabled()) {
                     log.debug("Error occurred while extracting user from user id : " + userID, e);
                 }
+                throw new IdentityOAuth2Exception("Error occurred while extracting user from user id : " + userID, e);
             }
 
             if (user != null) {
@@ -116,9 +121,7 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
                 return patAuthenticatedUser;
             }
         }
-
         return null;
-
     }
 
     private int getTenantId(String tenantDomain) throws IdentityOAuth2Exception {

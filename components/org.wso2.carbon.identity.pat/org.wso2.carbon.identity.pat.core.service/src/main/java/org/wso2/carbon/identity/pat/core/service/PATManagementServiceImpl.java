@@ -60,7 +60,7 @@ public class PATManagementServiceImpl implements PATManagementService {
             String username = PATUtil.getUserNameFromContext();
 
             PATUtil.startSuperTenantFlow();
-            validatePATCreationData(patCreationData);
+            validatePATCreationData(patCreationData, userId);
 
             OAuth2AccessTokenReqDTO tokenReqDTO = buildAccessTokenReqDTO(patCreationData, userId);
             OAuth2AccessTokenRespDTO oauth2AccessTokenResp = PATUtil.getOAuth2Service().issueAccessToken(tokenReqDTO);
@@ -158,13 +158,21 @@ public class PATManagementServiceImpl implements PATManagementService {
 
     }
 
-    private void validatePATCreationData(PATCreationData patCreationData) throws PATManagementException {
+    private void validatePATCreationData(PATCreationData patCreationData, String userId) throws PATManagementException {
 
-        if (StringUtils.isBlank(patCreationData.getAlias())) {
+        if (StringUtils.isNotBlank(patCreationData.getAlias())) {
+            PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
+            boolean isDuplicatedAlias = patMgtDAO.isDuplicatedAlias(userId, patCreationData.getAlias());
+            if (isDuplicatedAlias) {
+                throw new PATClientManagementException(PATConstants.ErrorMessage.ERROR_CODE_DUPLICATED_ALIAS);
+            }
+        } else {
             throw new PATClientManagementException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_ALIAS);
         }
+
         if (patCreationData.getValidityPeriod() <= 0) {
-            throw new PATClientManagementException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_VALIDITY_PERIOD.getCode());
+            throw new PATClientManagementException(PATConstants.ErrorMessage.
+                    ERROR_CODE_INVALID_VALIDITY_PERIOD.getCode());
         }
         if (StringUtils.isBlank(patCreationData.getClientID())) {
             throw new PATClientManagementException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_CLIENT_ID);
@@ -200,7 +208,6 @@ public class PATManagementServiceImpl implements PATManagementService {
         tokenReqDTO.setGrantType(PATConstants.PAT);
         tokenReqDTO.setClientId(patCreationData.getClientID());
         tokenReqDTO.setScope(patCreationData.getScope().toArray(new String[0]));
-        // Set all request parameters to the OAuth2AccessTokenReqDTO
         tokenReqDTO.setRequestParameters(getRequestParameters(patCreationData, userId));
 
         tokenReqDTO.addAuthenticationMethodReference(PATConstants.PAT);
