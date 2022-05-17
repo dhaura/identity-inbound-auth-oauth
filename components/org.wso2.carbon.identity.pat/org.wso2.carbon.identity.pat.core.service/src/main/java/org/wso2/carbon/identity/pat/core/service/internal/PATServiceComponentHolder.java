@@ -17,14 +17,14 @@ import org.wso2.carbon.user.core.service.RealmService;
 
 public class PATServiceComponentHolder {
 
-    private static PATServiceComponent instance = new PATServiceComponent();
+    private static PATServiceComponentHolder instance = new PATServiceComponentHolder();
     private RealmService realmService;
     private OAuth2Service oAuth2Service;
     private static IdentityEventService identityEventService;
 
     private static final Log log = LogFactory.getLog(PATServiceComponentHolder.class);
 
-    public static PATServiceComponent getInstance() {
+    public static PATServiceComponentHolder getInstance() {
 
         return instance;
 

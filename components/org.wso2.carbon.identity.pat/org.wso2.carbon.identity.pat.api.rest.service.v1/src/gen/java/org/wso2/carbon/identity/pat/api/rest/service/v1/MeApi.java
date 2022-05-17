@@ -83,6 +83,7 @@ public class MeApi  {
         @ApiResponse(code = 400, message = "Invalid request input", response = Error.class),
         @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
         @ApiResponse(code = 403, message = "Resources Forbidden", response = Void.class),
+        @ApiResponse(code = 409, message = "Alias already exists for the authorized user.", response = Error.class),
         @ApiResponse(code = 500, message = "Internal Server Error", response = Error.class)
     })
     public Response meTokensPost(@ApiParam(value = "Represents the request to create a PAT." ,required=true) @Valid PATCreationRequest paTCreationRequest) {

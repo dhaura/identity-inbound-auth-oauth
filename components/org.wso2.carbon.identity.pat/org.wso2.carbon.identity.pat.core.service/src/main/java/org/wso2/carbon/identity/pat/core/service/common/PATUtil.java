@@ -11,8 +11,11 @@ package org.wso2.carbon.identity.pat.core.service.common;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.oauth.OAuthAdminService;
-import org.wso2.carbon.identity.oauth2.OAuth2Service;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.pat.core.service.internal.PATServiceComponentHolder;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
@@ -26,36 +29,6 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 public class PATUtil {
 
     private static final Log log = LogFactory.getLog(PATUtil.class);
-
-    /**
-     * Get OAuthAdmin osgi service.
-     *
-     * @return OAuthAdminService
-     */
-    public static OAuthAdminService getOAuthServiceAdminService() {
-        return (OAuthAdminService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                .getOSGiService(OAuthAdminService.class, null);
-    }
-
-    /**
-     * Get realm service.
-     *
-     * @return RealmService
-     */
-    public static RealmService getRealmService() {
-        return (RealmService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                .getOSGiService(RealmService.class, null);
-    }
-
-    /**
-     * Get OAuth2 service.
-     *
-     * @return OAuth2Service
-     */
-    public static OAuth2Service getOAuth2Service() {
-        return (OAuth2Service) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                .getOSGiService(OAuth2Service.class, null);
-    }
 
     /**
      * Get UserID.
@@ -76,7 +49,17 @@ public class PATUtil {
     }
 
     /**
-     * This method will start a super tenant flow
+     * Get Tenant Domain.
+     *
+     * @return String
+     */
+    public static String getTenantDomainFromContext() {
+        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+    }
+
+
+    /**
+     * This method will start a super tenant flow.
      */
     public static void startSuperTenantFlow() {
 
@@ -87,13 +70,83 @@ public class PATUtil {
     }
 
     /**
-     * This method will return the relevant user from the UserUniqueStoreManager
+     * This method will return the relevant user from the UserUniqueStoreManager.
+     *
+     * @param userID           User ID of the user.
+     * @param userStoreManager User Store Manager related to the user.
+     *
+     * @return User            Object related to the user ID.
+     * @throws UserStoreException
      */
     public static User getUser(String userID, AbstractUserStoreManager userStoreManager) throws UserStoreException {
         UserUniqueIDManger userUniqueIDManger = new UserUniqueIDManger();
         User user = userUniqueIDManger.getUser(userID, userStoreManager);
 
         return user;
+    }
+
+    /**
+     * This method will return the relevant authorized user from the UserStoreManager.
+     *
+     * @param userID       User ID of the user.
+     * @param tenantDomain Tenant Domain.
+     *
+     * @return AuthenticatedUser   Object related to the authorized user.
+     * @throws IdentityOAuth2Exception
+     */
+    public static AuthenticatedUser getAuthenticatedUser(String userID, String tenantDomain)
+            throws IdentityOAuth2Exception {
+
+        AbstractUserStoreManager userStoreManager = getUserStoreManager(tenantDomain);
+
+        if (userStoreManager != null) {
+            User user;
+            try {
+                user = getUser(userID, userStoreManager);
+            } catch (UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error occurred while extracting user from user id : " + userID, e);
+                }
+                throw new IdentityOAuth2Exception("Error occurred while extracting user from user id : " + userID, e);
+            }
+
+            if (user != null) {
+                AuthenticatedUser patAuthenticatedUser = new AuthenticatedUser(user);
+                patAuthenticatedUser.setTenantDomain(tenantDomain);
+
+                return patAuthenticatedUser;
+            }
+        }
+        return null;
+    }
+
+    private static int getTenantId(String tenantDomain) throws IdentityOAuth2Exception {
+
+        int tenantId;
+        try {
+            tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        } catch (IdentityRuntimeException e) {
+            log.error("Token request with PAT Grant Type for an invalid tenant : " + tenantDomain);
+            throw new IdentityOAuth2Exception(e.getMessage(), e);
+        }
+        return tenantId;
+    }
+
+    private static AbstractUserStoreManager getUserStoreManager(String tenantDomain)
+            throws IdentityOAuth2Exception {
+
+        int tenantId = getTenantId(tenantDomain);
+        RealmService realmService = PATServiceComponentHolder.getInstance().getRealmService();
+        AbstractUserStoreManager userStoreManager;
+
+        try {
+            userStoreManager
+                    = (AbstractUserStoreManager) realmService.getTenantUserRealm(tenantId).getUserStoreManager();
+        } catch (UserStoreException e) {
+            throw new IdentityOAuth2Exception(e.getMessage(), e);
+        }
+
+        return userStoreManager;
     }
 
 }

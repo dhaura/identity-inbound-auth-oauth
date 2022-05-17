@@ -10,11 +10,10 @@
 package org.wso2.carbon.identity.pat.core.service.dao;
 
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
-import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientManagementException;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementClientException;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementException;
-import org.wso2.carbon.identity.pat.core.service.exeptions.PATServerManagementException;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementServerException;
 import org.wso2.carbon.identity.pat.core.service.model.PATViewMetadata;
 
 import java.sql.Connection;
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class PATMgtDAOImpl implements PATMgtDAO {
 
     @Override
-    public void insertPATData(String tokenID, String alias, String description) throws IdentityOAuth2Exception {
+    public void insertPATData(String tokenID, String alias, String description) throws PATManagementServerException {
 
         try (Connection connection = IdentityDatabaseUtil.getDBConnection(true)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(SQLQueries.
@@ -49,12 +48,10 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new IdentityOAuth2Exception("Error occurred while persisting the alias and description " +
-                        "of the new Personal Access Token.", e);
+                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_PERSISTING_PAT_DATA);
             }
         } catch (SQLException e) {
-            throw new IdentityOAuth2Exception("Error occurred while persisting the alias and description " +
-                    "of the new Personal Access Token.", e);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_PERSISTING_PAT_DATA);
         }
     }
 
@@ -73,15 +70,15 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 if (resultSet.next()) {
                     return getPATViewMetadata(resultSet);
                 }
-                throw new PATClientManagementException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
+                throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
 
 
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
+                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
             }
         } catch (SQLException e) {
-            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
 
         }
     }
@@ -109,10 +106,10 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
+                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
             }
         } catch (SQLException e) {
-            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
         }
     }
 
@@ -136,10 +133,10 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_SCOPES);
+                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_SCOPES);
             }
         } catch (SQLException e) {
-            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_SCOPES);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_SCOPES);
         }
     }
 
@@ -158,16 +155,16 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                     String accessToken = resultSet.getString(PATConstants.ACCESS_TOKEN);
                     return accessToken;
                 } else {
-                    throw new PATClientManagementException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
+                    throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
                 }
 
 
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_PAT);
+                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_PAT);
             }
         } catch (SQLException e) {
-            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_PAT);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_PAT);
         }
     }
 
@@ -185,15 +182,15 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                     String clientID = resultSet.getString(PATConstants.INBOUND_AUTH_KEY);
                     return clientID;
                 }
-                throw new PATClientManagementException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
+                throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
 
 
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_CLIENT_ID);
+                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_CLIENT_ID);
             }
         } catch (SQLException e) {
-            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_CLIENT_ID);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_CLIENT_ID);
         }
     }
 
@@ -216,15 +213,15 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_VALIDATING_DUPLICATED_ALIAS);
+                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_VALIDATING_DUPLICATED_ALIAS);
             }
         } catch (SQLException e) {
-            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_VALIDATING_DUPLICATED_ALIAS);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_VALIDATING_DUPLICATED_ALIAS);
         }
     }
 
     private PATViewMetadata getPATViewMetadata(ResultSet resultSet)
-            throws PATServerManagementException, SQLException {
+            throws PATManagementServerException, SQLException {
 
         PATViewMetadata patViewMetadata = new PATViewMetadata();
         patViewMetadata.setTokenId(resultSet.getString(PATConstants.TOKEN_ID));
@@ -241,7 +238,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
         return patViewMetadata;
     }
 
-    private String getExpiryTime(int validityPeriod, String timeCreated) throws PATServerManagementException {
+    private String getExpiryTime(int validityPeriod, String timeCreated) throws PATManagementServerException {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Date timeCreatedObj = null;
@@ -254,18 +251,18 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
             return formatter.format(calendar.getTime());
         } catch (ParseException e) {
-            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
         }
     }
 
-    private String getISOStandardTime(String time) throws PATServerManagementException {
+    private String getISOStandardTime(String time) throws PATManagementServerException {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Date date;
         try {
             date = formatter.parse(time);
         } catch (ParseException e) {
-            throw new PATServerManagementException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_RETRIEVING_TOKEN_METADATA);
         }
 
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");

@@ -40,6 +40,12 @@ public class PATServiceComponent {
         bundleContext.registerService(PATManagementService.class.getName(), new PATManagementServiceImpl(), null);
     }
 
+    @Reference(
+            name = "RealmService",
+            service = org.wso2.carbon.user.core.service.RealmService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetRealmService")
     protected void setRealmService(RealmService realmService) {
 
         if (log.isDebugEnabled()) {
@@ -56,12 +62,18 @@ public class PATServiceComponent {
         PATServiceComponentHolder.getInstance().setRealmService(null);
     }
 
+    @Reference(
+            name = "OAuth2Service",
+            service = org.wso2.carbon.identity.oauth2.OAuth2Service.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetOAuth2Service")
     protected void setOAuth2Service(OAuth2Service oAuth2Service) {
 
         if (log.isDebugEnabled()) {
             log.debug("Setting the OAuth2 Service");
         }
-        PATServiceComponentHolder.getInstance().setOAuth2Service(oAuth2Service);
+        PATServiceComponentHolder.getInstance().setOauth2Service(oAuth2Service);
     }
 
     protected void unsetOAuth2Service(OAuth2Service oAuth2Service) {
@@ -69,7 +81,7 @@ public class PATServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("Unsetting the OAuth2 Service");
         }
-        PATServiceComponentHolder.getInstance().setOAuth2Service(null);
+        PATServiceComponentHolder.getInstance().setOauth2Service(null);
     }
 
     @Reference(

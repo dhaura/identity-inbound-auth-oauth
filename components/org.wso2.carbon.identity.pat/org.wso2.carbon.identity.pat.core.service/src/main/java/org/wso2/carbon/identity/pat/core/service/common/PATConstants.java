@@ -28,12 +28,9 @@ public class PATConstants {
     public static final String CLIENT_ID = "client_id";
 
     // constants used for sending an email
-    public static final String EMAIL = "email";
-    public static final String SEND_TO = "send-to";
     public static final String TEMPLATE_TYPE = "TEMPLATE_TYPE";
     public static final String ASGARDEO_PAT_CREATION_EMAIL_TEMPLATE = "AsgardeoPATCreation";
     public static final String ASGARDEO_PAT_REVOCATION_EMAIL_TEMPLATE = "AsgardeoPATRevocation";
-    public static final String EMAIL_CHANNEL = "EMAIL";
 
     /**
      * Enum for PAT management related errors.
@@ -52,7 +49,10 @@ public class PATConstants {
         ERROR_CODE_EMPTY_CLIENT_ID("IPM-95006", "Client ID parameter cannot be empty."),
         ERROR_CODE_EMPTY_TOKEN_ID("IPM-95007", "Token ID path parameter cannot be empty."),
         ERROR_CODE_INVALID_TOKEN_ID("IPM-95008", "Token ID path parameter should be valid."),
-        ERROR_CREATING_PAT("IPM-95009", "Token ID path parameter should be valid."),
+        ERROR_CREATING_PAT("IPM-95009", "Error occurred while creating the new personal access token."),
+        ERROR_PERSISTING_PAT_DATA("IPM-95009", "Error occurred while persisting the " +
+                "alias and description of the new Personal Access Token."),
+        ERROR_REVOKING_PAT("IPM-95009", "Error occurred while revoking the personal access token."),
         ERROR_RETRIEVING_TOKEN_METADATA("IPM-95010", "Error occurred while retrieving token metadata."),
         ERROR_RETRIEVING_TOKEN_SCOPES("IPM-95011", "Error occurred while retrieving token scopes."),
         ERROR_RETRIEVING_CLIENT_ID("IPM-95012", "Error occurred while retrieving client ID."),

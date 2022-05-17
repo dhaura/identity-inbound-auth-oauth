@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
 import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
 import org.wso2.carbon.identity.pat.core.service.dao.PATDAOFactory;
 import org.wso2.carbon.identity.pat.core.service.dao.PATMgtDAOImpl;
+import org.wso2.carbon.identity.pat.core.service.internal.PATServiceComponentHolder;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.User;
@@ -44,7 +45,7 @@ import static org.mockito.Matchers.*;
 import static org.powermock.api.mockito.PowerMockito.*;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
-@PrepareForTest({OAuthServerConfiguration.class, PATDAOFactory.class, PATUtil.class, IdentityTenantUtil.class, OAuth2Util.class, OAuthTokenPersistenceFactory.class})
+@PrepareForTest({OAuthServerConfiguration.class, PATDAOFactory.class, PATServiceComponentHolder.class, PATUtil.class, IdentityTenantUtil.class, OAuth2Util.class, OAuthTokenPersistenceFactory.class})
 public class PATGrantHandlerTest extends PowerMockTestCase {
 
     @Mock
@@ -52,9 +53,6 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
 
     private OAuthTokenReqMessageContext tokReqMsgCtx;
     private OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO;
-    private RealmService realmService;
-    private UserRealm userRealm;
-    private AbstractUserStoreManager userStoreManager;
     private PATDAOFactory patdaoFactory;
     private PATMgtDAOImpl patMgtDAO;
     private OAuthTokenPersistenceFactory oAuthTokenPersistenceFactory;
@@ -75,9 +73,6 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
 
         tokReqMsgCtx = mock(OAuthTokenReqMessageContext.class);
         oAuth2AccessTokenReqDTO = mock(OAuth2AccessTokenReqDTO.class);
-        realmService = mock(RealmService.class);
-        userRealm = mock(UserRealm.class);
-        userStoreManager = mock(AbstractUserStoreManager.class);
 
         mockStatic(OAuthTokenPersistenceFactory.class);
         oAuthTokenPersistenceFactory = mock(OAuthTokenPersistenceFactory.class);
@@ -85,6 +80,8 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         mockStatic(PATDAOFactory.class);
         patdaoFactory = mock(PATDAOFactory.class);
         patMgtDAO = mock(PATMgtDAOImpl.class);
+
+        mockStatic(PATUtil.class);
     }
 
     @Test
@@ -109,16 +106,11 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         mockStatic(IdentityTenantUtil.class);
         when(IdentityTenantUtil.getTenantId(anyString())).thenReturn(-1234);
 
-        mockStatic(PATUtil.class);
-        when(PATUtil.getRealmService()).thenReturn(realmService);
-        when(realmService.getTenantUserRealm(anyInt())).thenReturn(userRealm);
-        when(realmService.getTenantUserRealm(anyInt()).getUserStoreManager()).thenReturn(userStoreManager);
-
-        User user = new User();
-        user.setUserID(USER_ID);
-        user.setUsername("admin");
-        user.setUserStoreDomain("PRIMARY");
-        when(PATUtil.getUser(USER_ID, userStoreManager)).thenReturn(user);
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+        authenticatedUser.setUserId(USER_ID);
+        authenticatedUser.setUserName("admin");
+        authenticatedUser.setUserStoreDomain("PRIMARY");
+        when(PATUtil.getAuthenticatedUser(USER_ID, TENANT_DOMAIN)).thenReturn(authenticatedUser);
 
         when(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getScope()).thenReturn(scopes);
 
@@ -159,19 +151,8 @@ public class PATGrantHandlerTest extends PowerMockTestCase {
         mockStatic(IdentityTenantUtil.class);
         when(IdentityTenantUtil.getTenantId(anyString())).thenReturn(-1234);
 
-        mockStatic(PATUtil.class);
-        when(PATUtil.getRealmService()).thenReturn(realmService);
-        when(realmService.getTenantUserRealm(anyInt())).thenReturn(userRealm);
-        when(realmService.getTenantUserRealm(anyInt()).getUserStoreManager()).thenReturn(null);
-
-        // check when user store manager is unavailable
-        boolean actual4 = patGrantHandler.validateGrant(tokReqMsgCtx);
-        Assert.assertFalse(actual4, "PAT grant validation should be unsuccessful");
-
-        when(realmService.getTenantUserRealm(anyInt()).getUserStoreManager()).thenReturn(null);
-        when(PATUtil.getUser(USER_ID, userStoreManager)).thenReturn(null);
-
-        // check when user is unavailable (user id is incorrect)
+        // check when authorized user is unavailable (user id is incorrect)
+        when(PATUtil.getAuthenticatedUser(USER_ID, TENANT_DOMAIN)).thenReturn(null);
         boolean actual5 = patGrantHandler.validateGrant(tokReqMsgCtx);
         Assert.assertFalse(actual5, "PAT grant validation should be unsuccessful");
     }

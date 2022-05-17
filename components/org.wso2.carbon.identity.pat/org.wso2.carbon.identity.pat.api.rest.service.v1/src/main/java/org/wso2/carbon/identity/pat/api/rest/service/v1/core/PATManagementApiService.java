@@ -25,7 +25,7 @@ import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATCreationRespons
 import org.wso2.carbon.identity.pat.api.rest.service.v1.model.PATMetadata;
 import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
 import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
-import org.wso2.carbon.identity.pat.core.service.exeptions.PATClientManagementException;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementClientException;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementException;
 import org.wso2.carbon.identity.pat.core.service.model.PATCreationData;
 import org.wso2.carbon.identity.pat.core.service.model.PATData;
@@ -44,7 +44,9 @@ public class PATManagementApiService {
 
     private static final Log LOG = LogFactory.getLog(PATManagementApiService.class);
 
-    private static final List<String> CONFLICT_ERROR_SCENARIOS = Arrays.asList();
+    private static final List<String> CONFLICT_ERROR_SCENARIOS = Arrays.asList(
+            PATConstants.ErrorMessage.ERROR_CODE_DUPLICATED_ALIAS.getCode()
+    );
 
     private static final List<String> NOT_FOUND_ERROR_SCENARIOS = Arrays.asList(
             PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID.getCode()
@@ -202,7 +204,7 @@ public class PATManagementApiService {
 
         ErrorResponse errorResponse;
         Response.Status status;
-        if (exception instanceof PATClientManagementException) {
+        if (exception instanceof PATManagementClientException) {
             status = Response.Status.BAD_REQUEST;
             if (isConflictScenario(exception.getErrorCode())) {
                 status = Response.Status.CONFLICT;

@@ -11,6 +11,7 @@ package org.wso2.carbon.identity.pat.core.service.dao;
 
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementException;
+import org.wso2.carbon.identity.pat.core.service.exeptions.PATManagementServerException;
 import org.wso2.carbon.identity.pat.core.service.model.PATViewMetadata;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public interface PATMgtDAO {
      * @param alias       Alias of the newly created PAT.
      * @param description Description of the newly created PAT.
      */
-    void insertPATData(String tokenID, String alias, String description) throws IdentityOAuth2Exception;
+    void insertPATData(String tokenID, String alias, String description) throws PATManagementServerException;
 
     /**
      * Get metadata of the specified Personal Access Token from the database.
