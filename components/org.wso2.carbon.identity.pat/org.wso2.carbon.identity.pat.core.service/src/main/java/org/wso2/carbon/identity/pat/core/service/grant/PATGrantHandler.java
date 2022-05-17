@@ -13,7 +13,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
-import org.wso2.carbon.identity.event.IdentityEventConstants;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.bean.OAuthClientAuthnContext;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
@@ -72,11 +71,6 @@ public class PATGrantHandler extends AbstractAuthorizationGrantHandler {
 
             throw new IdentityOAuth2Exception(e.getMessage(), e);
         }
-
-        responseDTO.addParameter(IdentityEventConstants.EventProperty.USER_STORE_DOMAIN,
-                tokReqMsgCtx.getAuthorizedUser().getUserStoreDomain());
-        responseDTO.addParameter(IdentityEventConstants.EventProperty.TENANT_DOMAIN,
-                tokReqMsgCtx.getAuthorizedUser().getTenantDomain());
 
         return responseDTO;
     }
