@@ -23,7 +23,7 @@ public class PATConstants {
     public static final String SCOPE = "scope";
     public static final String TOKEN_SCOPE = "token_scope";
     public static final String ACCESS_TOKEN = "access_token";
-    public static final String INBOUND_AUTH_KEY = "inbound_auth_key";
+    public static final String CONSUMER_KEY = "consumer_key";
     public static final String USER_ID = "user_id";
     public static final String CLIENT_ID = "client_id";
 

@@ -38,5 +38,12 @@
         <module>org.wso2.carbon.identity.pat.api.rest.service.v1</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+    </dependencies>
+
 
 </project>

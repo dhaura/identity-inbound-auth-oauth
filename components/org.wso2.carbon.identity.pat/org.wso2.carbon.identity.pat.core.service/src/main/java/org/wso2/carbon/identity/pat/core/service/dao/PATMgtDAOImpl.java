@@ -179,7 +179,7 @@ public class PATMgtDAOImpl implements PATMgtDAO {
                 ResultSet resultSet = prepStmt.executeQuery();
 
                 if (resultSet.next()) {
-                    String clientID = resultSet.getString(PATConstants.INBOUND_AUTH_KEY);
+                    String clientID = resultSet.getString(PATConstants.CONSUMER_KEY);
                     return clientID;
                 }
                 throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
