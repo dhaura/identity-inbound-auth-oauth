@@ -50,6 +50,8 @@ public class PATConstants {
         ERROR_CODE_EMPTY_TOKEN_ID("IPM-95007", "Token ID path parameter cannot be empty."),
         ERROR_CODE_INVALID_TOKEN_ID("IPM-95008", "Token ID path parameter should be valid."),
         ERROR_CREATING_PAT("IPM-95009", "Error occurred while creating the new personal access token."),
+        ERROR_SENDING_CREATION_MAIL("IPM-95009",
+                "Error occurred while triggering mail notification after creation of personal access token."),
         ERROR_PERSISTING_PAT_DATA("IPM-95009", "Error occurred while persisting the " +
                 "alias and description of the new Personal Access Token."),
         ERROR_REVOKING_PAT("IPM-95009", "Error occurred while revoking the personal access token."),

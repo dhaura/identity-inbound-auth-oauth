@@ -16,7 +16,7 @@ public class Constants {
 
     public static final String CORRELATION_ID_MDC = "Correlation-ID";
     public static final String SUPER_TENANT = "carbon.super";
-    private static final String ERROR_PREFIX = "ELM";
+    private static final String ERROR_PREFIX = "IPM";
 
 
     /**

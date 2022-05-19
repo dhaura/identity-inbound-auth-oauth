@@ -13,6 +13,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.identity.event.IdentityEventConstants;
 import org.wso2.carbon.identity.event.IdentityEventException;
 import org.wso2.carbon.identity.event.event.Event;
@@ -81,27 +83,18 @@ public class PATManagementServiceImpl implements PATManagementService {
                                     userStoreDomain, tenantDomain,
                                     PATConstants.ASGARDEO_PAT_CREATION_EMAIL_TEMPLATE);
                         } else {
-                            // We are not throwing any exception from here, because this event notification
-                            // should not break the main flow.
-                            String errorMsg = "Error occurred while calling triggerNotification. " +
-                                    "Details: Tenant Domain or User Store Domain Not Found.";
-                            log.warn(errorMsg);
-                            if (log.isDebugEnabled()) {
-                                log.debug(errorMsg);
-                            }
+                            revokeToken(patData.getAccessToken(), patCreationData.getClientID());
+                            handleEmailTriggeringError(true);
                         }
                     } else {
-                        // We are not throwing any exception from here, because this event notification
-                        // should not break the main flow.
-                        String errorMsg = "Error occurred while calling triggerNotification. " +
-                                "Details: Tenant Domain Not Found.";
-                        log.warn(errorMsg);
-                        if (log.isDebugEnabled()) {
-                            log.debug(errorMsg);
-                        }
+                        revokeToken(patData.getAccessToken(), patCreationData.getClientID());
+                        handleEmailTriggeringError(true);
                     }
-                } catch (IdentityOAuth2Exception | IdentityEventException e) {
+                } catch (IdentityOAuth2Exception e) {
                     throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_CREATING_PAT);
+                } catch (IdentityEventException e) {
+                    revokeToken(patData.getAccessToken(), patCreationData.getClientID());
+                    handleEmailTriggeringError(true);
                 }
                 return patData;
             }
@@ -153,12 +146,11 @@ public class PATManagementServiceImpl implements PATManagementService {
                 try {
                     PATUtil.startSuperTenantFlow();
 
-                    String accessToken = patMgtDAO.getPAT(tokenId);
+                    String accessToken = new String(CryptoUtil.getDefaultCryptoUtil()
+                            .base64DecodeAndDecrypt(patMgtDAO.getPAT(tokenId)));
                     String clientID = patMgtDAO.getClientIDFromTokenID(tokenId);
 
-                    OAuthRevocationRequestDTO revokeRequest = buildOAuthRevocationRequest(accessToken, clientID);
-                    OAuthRevocationResponseDTO oauthRevokeResp = PATServiceComponentHolder.getInstance()
-                            .getOauth2Service().revokeTokenByOAuthClient(revokeRequest);
+                    OAuthRevocationResponseDTO oauthRevokeResp = revokeToken(accessToken, clientID);
 
                     if (oauthRevokeResp.getErrorMsg() != null) {
                         throw new PATManagementServerException(
@@ -170,34 +162,22 @@ public class PATManagementServiceImpl implements PATManagementService {
                                     .getUserStoreDomain();
 
                             if (StringUtils.isNotBlank(userStoreDomain)) {
-                                triggerEmail(username, patViewMetadata.getAlias(), patViewMetadata.getDescription(),
+                                triggerEmail(username, patViewMetadata.getAlias(), null,
                                         userStoreDomain, tenantDomain,
                                         PATConstants.ASGARDEO_PAT_REVOCATION_EMAIL_TEMPLATE);
                             } else {
-                                //We are not throwing any exception from here, because this event notification
-                                // should not break the main flow.
-                                String errorMsg = "Error occurred while calling triggerNotification. " +
-                                        "Details: User Store Domain Not Found.";
-                                log.warn(errorMsg);
-                                if (log.isDebugEnabled()) {
-                                    log.debug(errorMsg);
-                                }
+                                handleEmailTriggeringError(false);
                             }
                         } else {
-                            //We are not throwing any exception from here, because this event notification
-                            // should not break the main flow.
-                            String errorMsg = "Error occurred while calling triggerNotification. " +
-                                    "Details: Tenant Domain Not Found.";
-                            log.warn(errorMsg);
-                            if (log.isDebugEnabled()) {
-                                log.debug(errorMsg);
-                            }
+                            handleEmailTriggeringError(false);
                         }
-
                     }
-
-                } catch (IdentityOAuth2Exception | IdentityEventException e) {
+                } catch (IdentityOAuth2Exception e) {
                     throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_CREATING_PAT);
+                } catch (IdentityEventException e) {
+                    handleEmailTriggeringError(false);
+                } catch (CryptoException e) {
+                    throw new RuntimeException(e);
                 } finally {
                     PrivilegedCarbonContext.endTenantFlow();
                 }
@@ -208,6 +188,13 @@ public class PATManagementServiceImpl implements PATManagementService {
             throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID);
         }
 
+    }
+
+    private OAuthRevocationResponseDTO revokeToken(String accessToken, String clientID) {
+        OAuthRevocationRequestDTO revokeRequest = buildOAuthRevocationRequest(accessToken, clientID);
+        OAuthRevocationResponseDTO oauthRevokeResp = PATServiceComponentHolder.getInstance()
+                .getOauth2Service().revokeTokenByOAuthClient(revokeRequest);
+        return oauthRevokeResp;
     }
 
     private void validatePATCreationData(PATCreationData patCreationData, String userId) throws PATManagementException {
@@ -325,13 +312,33 @@ public class PATManagementServiceImpl implements PATManagementService {
         properties.put(IdentityEventConstants.EventProperty.TENANT_DOMAIN, tenantDomain);
         properties.put(PATConstants.TEMPLATE_TYPE, templateType);
         properties.put(PATConstants.ALIAS, alias);
-        if (StringUtils.isNotBlank(description)) {
-            properties.put(PATConstants.DESCRIPTION, description);
-        } else {
-            properties.put(PATConstants.DESCRIPTION, "Can be used to access WSO2 REST APIs.");
+        if (templateType.equals(PATConstants.ASGARDEO_PAT_CREATION_EMAIL_TEMPLATE)) {
+            if (StringUtils.isNotBlank(description)) {
+                properties.put(PATConstants.DESCRIPTION, description);
+            } else {
+                properties.put(PATConstants.DESCRIPTION, "Can be used to access WSO2 REST APIs.");
+            }
         }
 
         Event identityMgtEvent = new Event(eventName, properties);
         PATServiceComponentHolder.getInstance().getIdentityEventService().handleEvent(identityMgtEvent);
     }
+
+    private void handleEmailTriggeringError(boolean isAtCreation)
+            throws PATManagementServerException {
+
+        if (isAtCreation) {
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_SENDING_CREATION_MAIL);
+        } else {
+            //We are not throwing any exception from here, because this event notification
+            // should not break the main flow.
+            String errorMsg =
+                    "Error occurred while triggering mail notification after revocation of personal access token.";
+            log.warn(errorMsg);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMsg);
+            }
+        }
+    }
+
 }
