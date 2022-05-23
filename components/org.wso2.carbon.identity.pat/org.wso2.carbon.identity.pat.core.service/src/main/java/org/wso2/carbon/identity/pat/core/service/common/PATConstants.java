@@ -39,28 +39,28 @@ public class PATConstants {
      */
     public enum ErrorMessage {
 
-        ERROR_CODE_EMPTY_ALIAS("IPM-95001", "Alias parameter cannot be empty."),
-        ERROR_CODE_DUPLICATED_ALIAS("IPM-95002", "Alias already exists."),
-        ERROR_CODE_INVALID_VALIDITY_PERIOD("IPM-95003",
+        ERROR_CODE_EMPTY_ALIAS("IPM-50001", "Alias parameter cannot be empty."),
+        ERROR_CODE_DUPLICATED_ALIAS("IPM-50002", "Alias already exists."),
+        ERROR_CODE_INVALID_VALIDITY_PERIOD("IPM-50003",
                 "Validity period cannot be empty and should contain a positive long value."),
-        ERROR_CODE_SCOPES_NOT_PRESENT("IPM-95004", "At least one scope should be present."),
-        ERROR_CODE_INVALID_SCOPES("IPM-95005", "Scopes should be valid."),
+        ERROR_CODE_SCOPES_NOT_PRESENT("IPM-50004", "At least one scope should be present."),
+        ERROR_CODE_INVALID_SCOPES("IPM-50005", "Scopes should be valid."),
 
-        ERROR_CODE_EMPTY_CLIENT_ID("IPM-95006", "Client ID parameter cannot be empty."),
-        ERROR_CODE_EMPTY_TOKEN_ID("IPM-95007", "Token ID path parameter cannot be empty."),
-        ERROR_CODE_INVALID_TOKEN_ID("IPM-95008", "Token ID path parameter should be valid."),
-        ERROR_CREATING_PAT("IPM-95009", "Error occurred while creating the new personal access token."),
-        ERROR_SENDING_CREATION_MAIL("IPM-95009",
+        ERROR_CODE_EMPTY_CLIENT_ID("IPM-50006", "Client ID parameter cannot be empty."),
+        ERROR_CODE_EMPTY_TOKEN_ID("IPM-50007", "Token ID path parameter cannot be empty."),
+        ERROR_CODE_INVALID_TOKEN_ID("IPM-50008", "Token ID path parameter should be valid."),
+        ERROR_CREATING_PAT("IPM-55001", "Error occurred while creating the new personal access token."),
+        ERROR_SENDING_CREATION_MAIL("IPM-55002",
                 "Error occurred while triggering mail notification after creation of personal access token."),
-        ERROR_PERSISTING_PAT_DATA("IPM-95009", "Error occurred while persisting the " +
+        ERROR_PERSISTING_PAT_DATA("IPM-55003", "Error occurred while persisting the " +
                 "alias and description of the new Personal Access Token."),
-        ERROR_REVOKING_PAT("IPM-95009", "Error occurred while revoking the personal access token."),
-        ERROR_RETRIEVING_TOKEN_METADATA("IPM-95010", "Error occurred while retrieving token metadata."),
-        ERROR_RETRIEVING_TOKEN_SCOPES("IPM-95011", "Error occurred while retrieving token scopes."),
-        ERROR_RETRIEVING_CLIENT_ID("IPM-95012", "Error occurred while retrieving client ID."),
+        ERROR_REVOKING_PAT("IPM-55004", "Error occurred while revoking the personal access token."),
+        ERROR_RETRIEVING_TOKEN_METADATA("IPM-55005", "Error occurred while retrieving token metadata."),
+        ERROR_RETRIEVING_TOKEN_SCOPES("IPM-55006", "Error occurred while retrieving token scopes."),
+        ERROR_RETRIEVING_CLIENT_ID("IPM-55007", "Error occurred while retrieving client ID."),
 
-        ERROR_RETRIEVING_PAT("IPM-95013", "Error occurred while retrieving personal access token."),
-        ERROR_VALIDATING_DUPLICATED_ALIAS("IPM-95014", "Error occurred while validating alias for duplication.");
+        ERROR_RETRIEVING_PAT("IPM-55008", "Error occurred while retrieving personal access token."),
+        ERROR_VALIDATING_DUPLICATED_ALIAS("IPM-55009", "Error occurred while validating alias for duplication.");
 
         private final String code;
         private final String message;

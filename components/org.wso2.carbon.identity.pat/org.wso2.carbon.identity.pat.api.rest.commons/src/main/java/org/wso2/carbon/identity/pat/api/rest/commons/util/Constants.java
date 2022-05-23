@@ -25,19 +25,19 @@ public class Constants {
     public enum ErrorMessages {
 
         ERROR_COMMON_SERVER_ERROR(
-                "96001",
+                "10001",
                 "Unable to complete operation.",
                 "Error occurred while performing operation."),
         ERROR_UNABLE_TO_CREATE_PAT(
-                "96002",
+                "10002",
                 "Unable to create personal access token.",
                 "Error occurred while trying to create a personal access token for user: %s"),
         ERROR_UNABLE_TO_GET_PAT_METADATA(
-                "96003",
+                "10003",
                 "Unable to retrieve personal access token metadata.",
                 "Error occurred while trying to retrieve personal access token metadata for user: %s"),
         ERROR_UNABLE_TO_REVOKE_PAT(
-                "96004",
+                "10004",
                 "Unable to revoke the personal access token.",
                 "Error occurred while trying to revoke the personal access token for user: %s");
 

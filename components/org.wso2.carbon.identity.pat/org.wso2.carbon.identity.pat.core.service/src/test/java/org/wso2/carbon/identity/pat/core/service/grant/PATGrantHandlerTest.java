@@ -36,10 +36,6 @@ import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
 import org.wso2.carbon.identity.pat.core.service.dao.PATDAOFactory;
 import org.wso2.carbon.identity.pat.core.service.dao.PATMgtDAOImpl;
 import org.wso2.carbon.identity.pat.core.service.internal.PATServiceComponentHolder;
-import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
-import org.wso2.carbon.user.core.common.User;
-import org.wso2.carbon.user.core.service.RealmService;
 
 import static org.mockito.Matchers.*;
 import static org.powermock.api.mockito.PowerMockito.*;
