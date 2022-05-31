@@ -25,6 +25,8 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuthRevocationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuthRevocationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.RequestParameter;
+import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
+import org.wso2.carbon.identity.oauth2.validators.JDBCPermissionBasedInternalScopeValidator;
 import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
 import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
 import org.wso2.carbon.identity.pat.core.service.dao.PATDAOFactory;
@@ -40,8 +42,6 @@ import org.wso2.carbon.identity.pat.core.service.model.PATViewMetadata;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -60,9 +60,10 @@ public class PATManagementServiceImpl implements PATManagementService {
             String tenantDomain = PATUtil.getTenantDomainFromContext();
 
             PATUtil.startSuperTenantFlow();
-            validatePATCreationData(patCreationData, userId);
+            validatePATCreationData(patCreationData, userId, username);
 
             OAuth2AccessTokenReqDTO tokenReqDTO = buildAccessTokenReqDTO(patCreationData, userId);
+            validateScopes(patCreationData.getScope(), tokenReqDTO, userId, tenantDomain);
             OAuth2AccessTokenRespDTO oauth2AccessTokenResp = PATServiceComponentHolder.getInstance()
                     .getOauth2Service().issueAccessToken(tokenReqDTO);
 
@@ -138,56 +139,57 @@ public class PATManagementServiceImpl implements PATManagementService {
         String username = PATUtil.getUserNameFromContext();
         String tenantDomain = PATUtil.getTenantDomainFromContext();
 
-        if (StringUtils.isNotBlank(tokenId)) {
-            PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
-            PATViewMetadata patViewMetadata = patMgtDAO.getPATMetadata(tokenId, userId);
+        if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(username)) {
+            if (StringUtils.isNotBlank(tokenId)) {
+                PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
+                PATViewMetadata patViewMetadata = patMgtDAO.getPATMetadata(tokenId, userId);
 
-            if (patViewMetadata != null) {
-                try {
-                    PATUtil.startSuperTenantFlow();
+                if (patViewMetadata != null) {
+                    try {
+                        PATUtil.startSuperTenantFlow();
 
-                    String accessToken = new String(CryptoUtil.getDefaultCryptoUtil()
-                            .base64DecodeAndDecrypt(patMgtDAO.getPAT(tokenId)));
-                    String clientID = patMgtDAO.getClientIDFromTokenID(tokenId);
+                        String accessToken = new String(CryptoUtil.getDefaultCryptoUtil()
+                                .base64DecodeAndDecrypt(patMgtDAO.getPAT(tokenId)));
+                        String clientID = patMgtDAO.getClientIDFromTokenID(tokenId);
 
-                    OAuthRevocationResponseDTO oauthRevokeResp = revokeToken(accessToken, clientID);
+                        OAuthRevocationResponseDTO oauthRevokeResp = revokeToken(accessToken, clientID);
 
-                    if (oauthRevokeResp.getErrorMsg() != null) {
-                        throw new PATManagementServerException(
-                                PATConstants.ErrorMessage.ERROR_REVOKING_PAT.getCode(),
-                                oauthRevokeResp.getErrorMsg());
-                    } else {
-                        if (StringUtils.isNotBlank(tenantDomain)) {
-                            String userStoreDomain = PATUtil.getAuthenticatedUser(userId, tenantDomain)
-                                    .getUserStoreDomain();
+                        if (oauthRevokeResp.getErrorMsg() != null) {
+                            throw new PATManagementServerException(
+                                    PATConstants.ErrorMessage.ERROR_REVOKING_PAT.getCode(),
+                                    oauthRevokeResp.getErrorMsg());
+                        } else {
+                            if (StringUtils.isNotBlank(tenantDomain)) {
+                                String userStoreDomain = PATUtil.getAuthenticatedUser(userId, tenantDomain)
+                                        .getUserStoreDomain();
 
-                            if (StringUtils.isNotBlank(userStoreDomain)) {
-                                triggerEmail(username, patViewMetadata.getAlias(), null,
-                                        userStoreDomain, tenantDomain,
-                                        PATConstants.ASGARDEO_PAT_REVOCATION_EMAIL_TEMPLATE);
+                                if (StringUtils.isNotBlank(userStoreDomain)) {
+                                    triggerEmail(username, patViewMetadata.getAlias(), null,
+                                            userStoreDomain, tenantDomain,
+                                            PATConstants.ASGARDEO_PAT_REVOCATION_EMAIL_TEMPLATE);
+                                } else {
+                                    handleEmailTriggeringError(false);
+                                }
                             } else {
                                 handleEmailTriggeringError(false);
                             }
-                        } else {
-                            handleEmailTriggeringError(false);
                         }
+                    } catch (IdentityOAuth2Exception | CryptoException e) {
+                        throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_REVOKING_PAT);
+                    } catch (IdentityEventException e) {
+                        handleEmailTriggeringError(false);
+                    } finally {
+                        PrivilegedCarbonContext.endTenantFlow();
                     }
-                } catch (IdentityOAuth2Exception e) {
-                    throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_CREATING_PAT);
-                } catch (IdentityEventException e) {
-                    handleEmailTriggeringError(false);
-                } catch (CryptoException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    PrivilegedCarbonContext.endTenantFlow();
+                } else {
+                    throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
                 }
             } else {
-                throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_TOKEN_ID);
+                throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID);
             }
         } else {
-            throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_TOKEN_ID);
+            throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_USERNAME_OR_USER_ID);
         }
-
     }
 
     private OAuthRevocationResponseDTO revokeToken(String accessToken, String clientID) {
@@ -197,8 +199,12 @@ public class PATManagementServiceImpl implements PATManagementService {
         return oauthRevokeResp;
     }
 
-    private void validatePATCreationData(PATCreationData patCreationData, String userId) throws PATManagementException {
+    private void validatePATCreationData(PATCreationData patCreationData, String userId, String username)
+            throws PATManagementException {
 
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(username)) {
+            throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_USERNAME_OR_USER_ID);
+        }
         if (StringUtils.isNotBlank(patCreationData.getAlias())) {
             PATMgtDAO patMgtDAO = PATDAOFactory.getInstance().getPATMgtDAO();
             boolean isDuplicatedAlias = patMgtDAO.isDuplicatedAlias(userId, patCreationData.getAlias());
@@ -209,27 +215,37 @@ public class PATManagementServiceImpl implements PATManagementService {
             throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_ALIAS);
         }
 
-        if (patCreationData.getValidityPeriod() <= 0) {
+        if (patCreationData.getValidityPeriod() == null || patCreationData.getValidityPeriod() <= 0) {
             throw new PATManagementClientException(PATConstants.ErrorMessage.
                     ERROR_CODE_INVALID_VALIDITY_PERIOD.getCode());
         }
         if (StringUtils.isBlank(patCreationData.getClientID())) {
             throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_EMPTY_CLIENT_ID);
         }
-        if (patCreationData.getScope() != null && patCreationData.getScope().size() < 1) {
+        if (patCreationData.getScope() == null || patCreationData.getScope().size() < 1) {
             throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_SCOPES_NOT_PRESENT);
         }
-        validateScopes(patCreationData.getScope());
     }
 
-    private void validateScopes(List<String> scopes) throws PATManagementClientException {
+    private void validateScopes(List<String> scopes, OAuth2AccessTokenReqDTO tokenReqDTO, String userId,
+                                String tenantDomain) throws PATManagementException {
 
-        Pattern pattern = Pattern.compile("^internal");
-        Matcher matcher;
+        OAuthTokenReqMessageContext tokReqMsgCtx = new OAuthTokenReqMessageContext(tokenReqDTO);
+        tokReqMsgCtx.setScope(scopes.toArray(new String[0]));
+        try {
+            tokReqMsgCtx.setAuthorizedUser(PATUtil.getAuthenticatedUser(userId, tenantDomain));
+        } catch (IdentityOAuth2Exception e) {
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_VALIDATING_AUTHORIZED_SCOPES);
+        }
+
+        JDBCPermissionBasedInternalScopeValidator scopeValidator = new JDBCPermissionBasedInternalScopeValidator();
+        String[] authorizedInternalScopes = scopeValidator.validateScope(tokReqMsgCtx);
+        List<String> authorizedInternalScopesList = Arrays.asList(authorizedInternalScopes);
+
         for (String scope: scopes) {
-            matcher = pattern.matcher(scope);
-            if (!matcher.find()) {
-                throw new PATManagementClientException(PATConstants.ErrorMessage.ERROR_CODE_INVALID_SCOPES);
+            if (!authorizedInternalScopesList.contains(scope)) {
+                throw new PATManagementClientException(PATConstants.ErrorMessage
+                        .ERROR_CODE_INVALID_OR_FORBIDDEN_SCOPES);
             }
         }
     }
@@ -342,3 +358,4 @@ public class PATManagementServiceImpl implements PATManagementService {
     }
 
 }
+

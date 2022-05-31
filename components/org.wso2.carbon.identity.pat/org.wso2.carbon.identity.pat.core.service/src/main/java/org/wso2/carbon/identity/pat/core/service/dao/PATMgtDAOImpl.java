@@ -48,10 +48,10 @@ public class PATMgtDAOImpl implements PATMgtDAO {
 
             } catch (SQLException e) {
                 IdentityDatabaseUtil.rollbackTransaction(connection);
-                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_PERSISTING_PAT_DATA);
+                throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_CREATING_PAT);
             }
         } catch (SQLException e) {
-            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_PERSISTING_PAT_DATA);
+            throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_CREATING_PAT);
         }
     }
 

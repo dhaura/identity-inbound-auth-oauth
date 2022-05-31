@@ -5,8 +5,10 @@ info:
   description: >-
     This document specifies a Management **API** for **Personal Access Tokens (PAT)**.
 servers:
-  - url: 'https://{host-name}/api/pat/v1'
+  - url: 'https://{host-name}/t/{tenant-domain}/api/pat/v1'
     variables:
+      tenant-domain:
+        default: "carbon.super"
       host-name:
         default: "localhost:9443"
 security:
