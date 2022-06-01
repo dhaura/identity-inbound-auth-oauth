@@ -9,12 +9,14 @@
 
 package org.wso2.carbon.identity.pat.core.service;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.event.IdentityEventConstants;
 import org.wso2.carbon.identity.event.IdentityEventException;
 import org.wso2.carbon.identity.event.event.Event;
@@ -27,6 +29,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuthRevocationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.RequestParameter;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.validators.JDBCPermissionBasedInternalScopeValidator;
+import org.wso2.carbon.identity.oauth2.validators.RoleBasedInternalScopeValidator;
 import org.wso2.carbon.identity.pat.core.service.common.PATConstants;
 import org.wso2.carbon.identity.pat.core.service.common.PATUtil;
 import org.wso2.carbon.identity.pat.core.service.dao.PATDAOFactory;
@@ -230,23 +233,32 @@ public class PATManagementServiceImpl implements PATManagementService {
     private void validateScopes(List<String> scopes, OAuth2AccessTokenReqDTO tokenReqDTO, String userId,
                                 String tenantDomain) throws PATManagementException {
 
-        OAuthTokenReqMessageContext tokReqMsgCtx = new OAuthTokenReqMessageContext(tokenReqDTO);
-        tokReqMsgCtx.setScope(scopes.toArray(new String[0]));
         try {
+            OAuthTokenReqMessageContext tokReqMsgCtx = new OAuthTokenReqMessageContext(tokenReqDTO);
+            tokReqMsgCtx.setScope(scopes.toArray(new String[0]));
             tokReqMsgCtx.setAuthorizedUser(PATUtil.getAuthenticatedUser(userId, tenantDomain));
+
+            JDBCPermissionBasedInternalScopeValidator scopeValidator = new JDBCPermissionBasedInternalScopeValidator();
+            String[] authorizedInternalScopes = scopeValidator.validateScope(tokReqMsgCtx);
+            if (IdentityUtil.isSystemRolesEnabled()) {
+                RoleBasedInternalScopeValidator roleBasedInternalScopeValidator = new RoleBasedInternalScopeValidator();
+                String[] roleBasedInternalConsoleScopes = new String[0];
+                roleBasedInternalConsoleScopes = roleBasedInternalScopeValidator.validateScope(tokReqMsgCtx);
+
+                authorizedInternalScopes = (String[]) ArrayUtils
+                        .addAll(authorizedInternalScopes, roleBasedInternalConsoleScopes);
+            }
+
+            List<String> authorizedInternalScopesList = Arrays.asList(authorizedInternalScopes);
+
+            for (String scope: scopes) {
+                if (!authorizedInternalScopesList.contains(scope)) {
+                    throw new PATManagementClientException(PATConstants.ErrorMessage
+                            .ERROR_CODE_INVALID_OR_FORBIDDEN_SCOPES);
+                }
+            }
         } catch (IdentityOAuth2Exception e) {
             throw new PATManagementServerException(PATConstants.ErrorMessage.ERROR_VALIDATING_AUTHORIZED_SCOPES);
-        }
-
-        JDBCPermissionBasedInternalScopeValidator scopeValidator = new JDBCPermissionBasedInternalScopeValidator();
-        String[] authorizedInternalScopes = scopeValidator.validateScope(tokReqMsgCtx);
-        List<String> authorizedInternalScopesList = Arrays.asList(authorizedInternalScopes);
-
-        for (String scope: scopes) {
-            if (!authorizedInternalScopesList.contains(scope)) {
-                throw new PATManagementClientException(PATConstants.ErrorMessage
-                        .ERROR_CODE_INVALID_OR_FORBIDDEN_SCOPES);
-            }
         }
     }
 
