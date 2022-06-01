@@ -9,8 +9,8 @@
 
 package org.wso2.carbon.identity.pat.api.rest.commons.exceptions;
 
-import org.wso2.carbon.identity.pat.api.rest.commons.util.Utils;
 import org.apache.commons.logging.Log;
+import org.wso2.carbon.identity.pat.api.rest.commons.util.Utils;
 
 /**
  * ErrorResponse class for all API related errors.
@@ -122,9 +122,11 @@ public class ErrorResponse extends ErrorDTO {
             if (!Utils.isCorrelationIDPresent()) {
                 errorMsg = String.format("correlationID: %s | " + errorMsg, error.getRef());
             }
-            if (isClientException && log.isDebugEnabled()) {
-                log.debug(errorMsg);
-            } else {
+            if (isClientException) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg);
+                }
+            }  else {
                 log.error(errorMsg);
             }
             return error;
