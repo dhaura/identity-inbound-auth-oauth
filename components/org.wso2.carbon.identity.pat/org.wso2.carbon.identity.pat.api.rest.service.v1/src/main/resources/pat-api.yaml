@@ -1,0 +1,298 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: PAT Management API
+  description: >-
+    This document specifies a Management **API** for **Personal Access Tokens (PAT)**.
+servers:
+  - url: 'https://{host-name}/t/{tenant-domain}/api/pat/v1'
+    variables:
+      tenant-domain:
+        default: "carbon.super"
+      host-name:
+        default: "localhost:9443"
+security:
+  - OAuth2: []
+  - BasicAuth: []
+
+paths:
+  /me/tokens:
+    get:
+      tags:
+        - PAT Management
+      summary: Retrieve metadata of PATs
+      description: >-
+        Provides the capability to retrieve Metadata of all Personal Access Tokens of the authenticated user.
+      responses:
+        '200':
+          $ref: '#/components/responses/PATMetadataListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+        - PAT Management
+      summary: PAT creation
+      description: >-
+        Provides the capability to create a Personal Access Token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PATCreationRequest'
+        description: Represents the request to create a PAT.
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /me/tokens/{tokenId}:
+    get:
+      tags:
+        - PAT Management
+      summary: Retrieve metadata related to the specified PAT.
+      description: |
+        Provides the capability to retrieve the metadata for a specific PAT.
+      parameters:
+        - $ref: '#/components/parameters/TokenIDParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/PATMetadataResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags:
+        - PAT Management
+      summary: Revoke the speicifed PAT
+      description: >-
+        Provides the capability to revoke a Personal Access Token.
+      parameters:
+        - $ref: '#/components/parameters/TokenIDParam'
+      responses:
+        '204':
+          $ref: '#/components/responses/RevokeSuccess'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  parameters:
+    TokenIDParam:
+      in: path
+      name: tokenId
+      description: Token ID of a PAT
+      required: true
+      schema:
+        $ref: '#/components/schemas/TokenId'
+  schemas:
+    PATCreationRequest:
+      type: object
+      required:
+        - alias
+        - validityPeriod
+        - scope
+        - clientId
+      properties:
+        alias:
+          $ref: '#/components/schemas/Alias'
+        description:
+          $ref: '#/components/schemas/Description'
+        validityPeriod:
+          $ref: '#/components/schemas/ValidityPeriod'
+        scope:
+          $ref: '#/components/schemas/Scope'
+        clientId:
+          type: string
+          example: "JM6vFAVXAAHA1Jwhwnv7n4cNIP0a"
+    PATMetadataList:
+      type: array
+      items:
+        $ref: '#/components/schemas/PATBasicMetadata'
+    PATBasicMetadata:
+      items:
+        type: object
+        required:
+          - id
+          - alias
+          - createdTime
+          - expiryTime
+        properties:
+          id:
+            $ref: '#/components/schemas/TokenId'
+          alias:
+            $ref: '#/components/schemas/Alias'
+          description:
+            $ref: '#/components/schemas/Description'
+          createdTime:
+            $ref: '#/components/schemas/CreatedTime'
+          expiryTime:
+            $ref: '#/components/schemas/ExpiryTime'
+    PATMetadata:
+      type: object
+      required:
+        - id
+        - alias
+        - createdTime
+        - expiryTime
+        - scope
+      properties:
+        id:
+          $ref: '#/components/schemas/TokenId'
+        alias:
+          $ref: '#/components/schemas/Alias'
+        description:
+          $ref: '#/components/schemas/Description'
+        createdTime:
+          $ref: '#/components/schemas/CreatedTime'
+        expiryTime:
+          $ref: '#/components/schemas/ExpiryTime'
+        scope:
+          $ref: '#/components/schemas/Scope'
+    PATCreationResponse:
+      type: object
+      required:
+        - id
+        - token
+        - alias
+        - scope
+        - validityPeriod
+      properties:
+        id:
+          $ref: '#/components/schemas/TokenId'
+        token:
+          type:
+            string
+          example: "6edb0049-0ea3-3b26-9aa3-152b1891d200"
+        alias:
+          $ref: '#/components/schemas/Alias'
+        description:
+          $ref: '#/components/schemas/Description'
+        scope:
+          $ref: '#/components/schemas/Scope'
+        validityPeriod:
+          $ref: '#/components/schemas/ValidityPeriod'
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: APM-65000
+        message:
+          type: string
+          example: Some Error Message
+        description:
+          type: string
+          example: Some Error Description
+    TokenId:
+      type: string
+      example: "00a12e21-64a1-4b60-9434-3d06b222291c"
+    Alias:
+      type: string
+      example: "Sample Alias"
+    Description:
+      type: string
+      example: "This is a description for Sample Alias"
+    ValidityPeriod:
+      type: integer
+      example: 2000
+    CreatedTime:
+      type: string
+      description: "PAT creation time in ISO Date and Time format"
+      example: "2022-03-22T03:28:41Z"
+    ExpiryTime:
+      type: string
+      description: "PAT expiry time in ISO Date and Time format"
+      example: "2022-03-22T03:58:41Z"
+    Scope:
+      items:
+        type: string
+      type: array
+      example: ["internal_application_mgt_view", "internal_claim_meta_create"]
+
+  responses:
+    PATMetadataListResponse:
+      description: List of metadata of PATs successfully retrieved.
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/PATMetadataList'
+    PATMetadataResponse:
+      description: Token metadata successfully retrieved.
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/PATMetadata'
+    Created:
+      description: PAT successfully created.
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/PATCreationResponse'
+    RevokeSuccess:
+      description: PAT successfully revoked.
+    BadRequest:
+      description: Invalid request input
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+    Forbidden:
+      description: Resources Forbidden
+    Conflict:
+      description: Alias already exists for the authorized user.
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: PAT not found
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: Internal Server Error
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://localhost:9443/oauth2/authorize'
+          tokenUrl: 'http://localhost:9763/oauth2/token'
+          scopes: { }

@@ -1,0 +1,92 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+package org.wso2.carbon.identity.pat.core.service.common;
+
+/**
+ * Class for constants and error messages in PAT core service.
+ */
+public class PATConstants {
+
+    public static final String PAT = "pat";
+    public static final String TOKEN_ID = "token_id";
+    public static final String ALIAS = "alias";
+    public static final String DESCRIPTION = "description";
+    public static final String VALIDITY_PERIOD = "validity_period";
+    public static final String TIME_CREATED = "time_created";
+    public static final String SCOPE = "scope";
+    public static final String TOKEN_SCOPE = "token_scope";
+    public static final String ACCESS_TOKEN = "access_token";
+    public static final String CONSUMER_KEY = "consumer_key";
+    public static final String USER_ID = "user_id";
+    public static final String CLIENT_ID = "client_id";
+
+    // constants used for sending an email
+    public static final String TEMPLATE_TYPE = "TEMPLATE_TYPE";
+    public static final String ASGARDEO_PAT_CREATION_EMAIL_TEMPLATE = "AsgardeoPATCreation";
+    public static final String ASGARDEO_PAT_REVOCATION_EMAIL_TEMPLATE = "AsgardeoPATRevocation";
+
+    /**
+     * Enum for PAT management related errors.
+     * Error Code - code to identify the error.
+     * Error Message - What went wrong.
+     */
+    public enum ErrorMessage {
+
+        ERROR_CODE_EMPTY_ALIAS("IPM-50001", "Alias parameter cannot be empty."),
+        ERROR_CODE_DUPLICATED_ALIAS("IPM-50002", "Alias already exists."),
+        ERROR_CODE_INVALID_VALIDITY_PERIOD("IPM-50003",
+                "Validity period cannot be empty and should contain a positive long value."),
+        ERROR_CODE_SCOPES_NOT_PRESENT("IPM-50004", "At least one scope should be present."),
+        ERROR_CODE_INVALID_OR_FORBIDDEN_SCOPES("IPM-50005", "Invalid or forbidden scopes."),
+
+        ERROR_CODE_EMPTY_CLIENT_ID("IPM-50006", "Client ID parameter cannot be empty."),
+        ERROR_CODE_EMPTY_TOKEN_ID("IPM-50007", "Token ID path parameter cannot be empty."),
+        ERROR_CODE_INVALID_TOKEN_ID("IPM-50008", "Token ID path parameter should be valid."),
+        ERROR_CODE_EMPTY_USERNAME_OR_USER_ID("IPM-50009", "Username or user ID is empty."),
+
+        ERROR_CREATING_PAT("IPM-55001", "Error occurred while creating the new personal access token."),
+        ERROR_SENDING_CREATION_MAIL("IPM-55002",
+                "Error occurred while triggering mail notification after creation of personal access token."),
+        ERROR_REVOKING_PAT("IPM-55003", "Error occurred while revoking the personal access token."),
+        ERROR_RETRIEVING_TOKEN_METADATA("IPM-55004", "Error occurred while retrieving token metadata."),
+        ERROR_RETRIEVING_TOKEN_SCOPES("IPM-55005", "Error occurred while retrieving token scopes."),
+        ERROR_RETRIEVING_CLIENT_ID("IPM-55006", "Error occurred while retrieving client ID."),
+
+        ERROR_RETRIEVING_PAT("IPM-55007", "Error occurred while retrieving personal access token."),
+        ERROR_VALIDATING_DUPLICATED_ALIAS("IPM-55008", "Error occurred while validating alias for duplication."),
+        ERROR_VALIDATING_AUTHORIZED_SCOPES("IPM-55009", "Error occurred while validating authorized internal scopes.");
+
+
+        private final String code;
+        private final String message;
+
+        ErrorMessage(String code, String message) {
+
+            this.code = code;
+            this.message = message;
+        }
+
+        public String getCode() {
+
+            return code;
+        }
+
+        public String getMessage() {
+
+            return message;
+        }
+
+        @Override
+        public String toString() {
+
+            return code + " | " + message;
+        }
+    }
+}
